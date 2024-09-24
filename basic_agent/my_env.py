@@ -11,7 +11,7 @@ class SchedEnv(gym.Env):
         self.N = env_config["N"]
         self.M = env_config["M"]
         self.observation_space = Dict({
-            "config": Discrete(19), # 19 configuraciones posibles
+            "partition": Discrete(19), # 19 particiones posibles
             "slices_t": MultiDiscrete([(self.M + 1)] * 7), # Cuanto le queda (de 0 a M) a cada slice
             "ready_tasks": MultiDiscrete([[(self.M + 1)] * 5 + [(self.N + 1)]] * self.N) # El tipo de tarea (tiempo que tarda con cada una de los 5 tamaños e instancia) de las hasta N tareas libres, y la cantidad de tareas que hay de ese tipo (componente 6)
         })
@@ -37,14 +37,16 @@ class SchedEnv(gym.Env):
 
         
     def reset(self, seed = None, options = None):
-        self.pending_tasks = [[1,1,1,1,1], [1,1,1,1,2], [1,1,1,3,1], [1,1,1,2,1]] # Lista de tareas pendientes obtenidas con el generador sintético
-        init_config = 1 # Por ahora consideramos que empieza en la configuración 1 (1 instancia con los 7 slices)
+
+        num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
+        self.pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]
+        init_partition = np.random.randint(1, 20) # Particion inicial aleatoria
         init_slice_t = [0] * 7 # Consideramos que todos los slices están libres al principio
         ready_tasks_canonical = self._canonical_sort_tasks(self.pending_tasks[:self.N]) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         # Usamos el 0 para rellenar posiciones vacías en la representación de tareas ready
         init_ready_tasks = [ready_tasks_canonical + [[0] * 6] * (self.N - len(ready_tasks_canonical))] # Rellenamos con arrays de 6 ceros hasta N
         initial_obs = {
-            "config": init_config,
+            "partition": init_partition,
             "slices_t": np.array(init_slice_t),
             "ready_tasks": np.array(init_ready_tasks)
         }
@@ -56,5 +58,5 @@ class SchedEnv(gym.Env):
 
 env_example = SchedEnv({"N": 5, "M": 3})
 #obs = env_example.observation_space.sample()
-initial_obs, _ = env_example.reset()
+initial_obs, _ = env_example.reset(seed=0)
 print(initial_obs)
