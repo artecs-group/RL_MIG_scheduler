@@ -71,10 +71,6 @@ class SchedEnv(gym.Env):
         ready_tasks_canonical = canonical_sort_tasks(self.M, self.pending_tasks[:self.N]) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         # Usamos el 0 para rellenar posiciones vacías en la representación de tareas ready
         init_ready_tasks = ready_tasks_canonical + [[0] * 6] * (self.N - len(ready_tasks_canonical)) # Rellenamos con arrays de 6 ceros hasta N
-        
-
-
-
 
         initial_obs = {
             "observations":{
