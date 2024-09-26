@@ -4,7 +4,7 @@ import ray
 import numpy as np
 from ray.rllib.algorithms import ppo
 from gymnasium.spaces import Dict, Discrete, MultiDiscrete, MultiBinary
-from utils import partition_map, instance_size_map, canonical_sort_tasks, print_obs
+from utils import *
 
 
 
@@ -82,22 +82,26 @@ class SchedEnv(gym.Env):
 
 
     def reset(self, seed = None, options = None):
-
         num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
         pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]
-        init_partition = 1 # Por ahora, consideramos que se empieza en la partición 1 (una sola instancia de tamaño 7 siempre)
-        init_slice_t = [0] * 7 # Consideramos que todos los slices están libres al principio
+        init_partition = 2 # Por ahora, consideramos que se empieza en la partición 1 (una sola instancia de tamaño 7 siempre)
+        init_slice_t = [2,2,2,2,0,0,0] # Consideramos que todos los slices están libres al principio      
+        self.num_task_slices = [0,0,0,0,1,1,1] # Lleva el número de tipo de tarea que hay ejeuctando en cada slice
         ready_tasks_canonical = canonical_sort_tasks(self.M, pending_tasks[:self.N]) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
+        # Para tener un índice con el número de tipo de tarea, que luego me permita ser consistente en la representación gráfica
+        self.num_type_task = list(range(len(ready_tasks_canonical)))
         # Usamos el 0 para rellenar posiciones vacías en la representación de tareas ready
         init_ready_tasks = ready_tasks_canonical + [[0] * 6] * (self.N - len(ready_tasks_canonical)) # Rellenamos con arrays de 6 ceros hasta N
-
         self.obs = {
             "observations":{
                 "partition": init_partition,
                 "slices_t": init_slice_t,
-                "ready_tasks": ready_tasks_canonical
+                "ready_tasks": init_ready_tasks
             }
         }
+
+        self._check_obs_consistency()
+
         self.obs["action_mask"] = self._get_action_mask()
 
         
@@ -105,8 +109,8 @@ class SchedEnv(gym.Env):
     
 
     def render(self):
-        print_obs(self.obs)
-
+        basic_print_obs(self.obs)
+        graphic_obs(self.M, self.obs, self.num_task_slices)
 
 
     def _is_terminated(self):
@@ -120,6 +124,14 @@ class SchedEnv(gym.Env):
                 return False
         
         return True
+    
+    def _check_obs_consistency(self):
+        slice_i = 0
+        for instance_size in partition_map[self.obs["observations"]["partition"]]["sizes"]:
+            time_instance = self.obs["observations"]["slices_t"][slice_i]
+            for time_s in self.obs["observations"]["slices_t"][slice_i + 1: slice_i + instance_size]:
+                assert time_s == time_instance
+            slice_i += instance_size
 
     def step(self, action):
         # Esperar
@@ -132,33 +144,43 @@ class SchedEnv(gym.Env):
             for slice, time in enumerate(self.obs["observations"]["slices_t"]):
                 if time == 0:
                     self.obs["observations"]["slices_t"][slice] = self.reconfig_time
+                    self.num_task_slices[slice] = -1 # Para no confundir con tareas reales, represento con -1
         # Asignar tarea
         else:
             task = (action - 20) // 7
             instance = (action - 20) % 7
             # Quitamos la tarea de las ready_tasks
             self.obs["observations"]["ready_tasks"][task][-1] -= 1
-            # Si es la última de cierto tipo, quitamos el tipo de ready task
-            if self.obs["observations"]["ready_tasks"][task][-1] == 0:
-                self.obs["observations"]["ready_tasks"].pop(task)
-                # Añadimos un tipo de tarea vacío al final para mantener la dimensionalidad
-                self.obs["observations"]["ready_tasks"].append([0] * 6)
             # Aumentamos el tiempo que tarda la tarea para el tamaño de la instancia en todos los slices de la instancia
             instance_size = partition_map["sizes"][instance]
             task_time = self.obs["observations"]["ready_tasks"][task][instance_size_map[instance_size]]    
             for i, instance_slice in enumerate(partition_map["instances"]):
                 if instance_slice == instance:
                     self.obs["observations"]["slices_t"][i] = task_time
+                    self.num_task_slices[i] = self.num_type_task[task]
+
+            # Si es la última de cierto tipo, quitamos el tipo de ready task
+            if self.obs["observations"]["ready_tasks"][task][-1] == 0:
+                self.obs["observations"]["ready_tasks"].pop(task)
+                # Añadimos un tipo de tarea vacío al final para mantener la dimensionalidad
+                self.obs["observations"]["ready_tasks"].append([0] * 6)
+                # Movemos ese número de tipo de tarea al final
+                self.num_type_task.append(self.num_type_task[task])
+                self.num_type_task.pop(task)
 
         # Transitamos al primer slice que se libere
         min_slice_time = min(self.obs["observations"]["slices_t"])
         self.obs["observations"]["slices_t"] = [slice_time - min_slice_time for slice_time in self.obs["observations"]["slices_t"]]
+
+
+        self._check_obs_consistency()
 
         # Actualizamos la máscara de acciones para el nuevo estado
         self.obs["action_mask"] = self._get_action_mask()
 
         # Recompensamos con -tiempo transcurrido, para minimizar el makespan
         reward = -min_slice_time
+
         # Comprobamos si el episodio ha terminado
         terminated = self._is_terminated()
         
@@ -173,10 +195,8 @@ class SchedEnv(gym.Env):
 
 
 env_example = SchedEnv({"N": 5, "M": 3})
-print("Example")
-print(env_example.observation_space.sample())
-initial_obs, _ = env_example.reset(seed=0)
+initial_obs, _ = env_example.reset()
 env_example.render()
+env_example.step(0)
 print("\n\nAfter waiting")
-env_example.step(1)
 env_example.render()
