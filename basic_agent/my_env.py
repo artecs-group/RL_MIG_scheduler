@@ -33,16 +33,19 @@ class SchedEnv(gym.Env):
         # La acción de esperar sólo es válida si hay tareas en la GPU
         wait = 1 if any(slice_t != 0 for slice_t in slices_t) else 0
 
-
         # Reconfiguraciones válidas
-        reconfig_mask = [1] * 19
-        # Prohibido reconfigurar a la partición actual
-        reconfig_mask[current_partition - 1] = 0
-        # Prohibido reconfigurar a particiones en que haya que cambiar slices en uso
-        for future_partition in range(1, 20):
-            for curr_slice in range(7):
-                if partition_map[current_partition]["slices"][curr_slice] != partition_map[future_partition]["slices"][curr_slice] and slices_t[curr_slice] > 0:
-                    reconfig_mask[future_partition - 1] = 0
+        # Si no hay tareas ready, no tiene sentido reconfigurar la GPU
+        if ready_tasks[0][-1] == 0:
+            reconfig_mask = [0] * 19
+        else:
+            reconfig_mask = [1] * 19
+            # Prohibido reconfigurar a la partición actual
+            reconfig_mask[current_partition - 1] = 0
+            # Prohibido reconfigurar a particiones en que haya que cambiar slices en uso
+            for future_partition in range(1, 20):
+                for curr_slice in range(7):
+                    if partition_map[current_partition]["slices"][curr_slice] != partition_map[future_partition]["slices"][curr_slice] and slices_t[curr_slice] > 0:
+                        reconfig_mask[future_partition - 1] = 0
 
         # Acciones válidas sobre tareas ready
         select_ready_task = [1] * 7 * self.N
@@ -75,7 +78,7 @@ class SchedEnv(gym.Env):
 
     def _get_numpy_obs_state(self):
         return OrderedDict([('action_mask', np.array(self.obs["action_mask"])),
-                            ('observations', OrderedDict([('partition', np.int64(self.obs["observations"]["partition"])),
+                            ('observations', OrderedDict([('partition', np.int64(self.obs["observations"]["partition"] - 1)), # El objeto lleva las particiones de 1 a 19, pero el agente de 0 a 18 
                                                           ('ready_tasks', np.array(self.obs["observations"]["ready_tasks"])),
                                                           ('slices_t', np.array(self.obs["observations"]["slices_t"]))]))])
 
@@ -104,13 +107,16 @@ class SchedEnv(gym.Env):
 
         self.obs["action_mask"] = self._get_action_mask()
 
+        self.last_action = None # Aún no se ha hecho ninguna acción
+
+        self.acum_reward = 0
         
         return self._get_numpy_obs_state(), {}
     
 
     def render(self):
         basic_print_obs(self.obs)
-        graphic_obs(self.M, self.obs, self.num_task_slices)
+        graphic_obs(self)
 
 
     def _is_terminated(self):
@@ -133,10 +139,17 @@ class SchedEnv(gym.Env):
                 assert time_s == time_instance
             slice_i += instance_size
 
+
+    
+
     def step(self, action):
         # Esperar
         if action == 0:
-            pass
+            # Transitamos al primer slice que se libere
+            min_slice_time = min(slice_time for slice_time in self.obs["observations"]["slices_t"] if slice_time > 0)
+            self.obs["observations"]["slices_t"] = [slice_time - min_slice_time for slice_time in self.obs["observations"]["slices_t"]]
+            # Recompensamos con -tiempo transcurrido, para minimizar el makespan
+            reward = -min_slice_time
         # Reconfigurar
         elif action <= 19:
             self.obs["observations"]["partition"] = action
@@ -145,6 +158,7 @@ class SchedEnv(gym.Env):
                 if time == 0:
                     self.obs["observations"]["slices_t"][slice] = self.reconfig_time
                     self.num_task_slices[slice] = -1 # Para no confundir con tareas reales, represento con -1
+            reward = 0 # ¿Esto puede dar problemas? Realmente, no hasta que no se espere a la tarea ficticia de la reconfiguración no hay que sumar la recompensa negativa
         # Asignar tarea
         else:
             task = (action - 20) // 7
@@ -152,9 +166,9 @@ class SchedEnv(gym.Env):
             # Quitamos la tarea de las ready_tasks
             self.obs["observations"]["ready_tasks"][task][-1] -= 1
             # Aumentamos el tiempo que tarda la tarea para el tamaño de la instancia en todos los slices de la instancia
-            instance_size = partition_map["sizes"][instance]
+            instance_size = partition_map[self.obs["observations"]["partition"]]["sizes"][instance]
             task_time = self.obs["observations"]["ready_tasks"][task][instance_size_map[instance_size]]    
-            for i, instance_slice in enumerate(partition_map["instances"]):
+            for i, instance_slice in enumerate(partition_map[self.obs["observations"]["partition"]]["instances"]):
                 if instance_slice == instance:
                     self.obs["observations"]["slices_t"][i] = task_time
                     self.num_task_slices[i] = self.num_type_task[task]
@@ -167,24 +181,21 @@ class SchedEnv(gym.Env):
                 # Movemos ese número de tipo de tarea al final
                 self.num_type_task.append(self.num_type_task[task])
                 self.num_type_task.pop(task)
-
-        # Transitamos al primer slice que se libere
-        min_slice_time = min(self.obs["observations"]["slices_t"])
-        self.obs["observations"]["slices_t"] = [slice_time - min_slice_time for slice_time in self.obs["observations"]["slices_t"]]
-
+            reward = 0
 
         self._check_obs_consistency()
 
         # Actualizamos la máscara de acciones para el nuevo estado
         self.obs["action_mask"] = self._get_action_mask()
 
-        # Recompensamos con -tiempo transcurrido, para minimizar el makespan
-        reward = -min_slice_time
-
         # Comprobamos si el episodio ha terminado
         terminated = self._is_terminated()
         
         truncated, info = False, {}
+
+        self.last_action = action # La última acción realizada es la que se acaba de hacer
+
+        self.acum_reward += reward
 
         return self._get_numpy_obs_state(), reward, terminated, truncated, info
 
@@ -194,9 +205,12 @@ class SchedEnv(gym.Env):
 
 
 
-env_example = SchedEnv({"N": 5, "M": 3})
+env_example = SchedEnv({"N": 7, "M": 7})
 initial_obs, _ = env_example.reset()
-env_example.render()
-env_example.step(0)
-print("\n\nAfter waiting")
-env_example.render()
+
+terminated = False
+while not terminated:
+    env_example.render()
+    input("Press enter to next step...")
+    action = np.random.choice(np.flatnonzero(env_example.obs["action_mask"]))
+    _, _, terminated, _, _= env_example.step(action)

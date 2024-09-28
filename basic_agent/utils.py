@@ -65,12 +65,22 @@ def basic_print_obs(obs):
         print("\tPut task in instance:", action_mask[20 + i * 7: 20 + (i+1) * 7])
     print("-----------")
 
+def _action_to_str(action):
+    if action == 0:
+        return "Wait"
+    elif action < 20:
+        return f"Reconfigure to {partition_map[action]['sizes']}"
+    else:
+        task = (action - 20) // 7
+        instance = (action - 20) % 7
+        return f"Put task {task} in instance {instance}"
 
-def graphic_obs(M, obs, num_task_slices):
-
+def graphic_obs(env):
+    M, obs, num_task_slices, last_action, acum_reward = env.M, env.obs, env.num_task_slices, env.last_action, env.acum_reward
     colors = plt.cm.tab20.colors
     figsize = (30, 5)
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=figsize)
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=figsize, gridspec_kw={'width_ratios': [3, 3, 1]})
+    fig.suptitle((f"Initial state." if last_action is None else f"Last action: {_action_to_str(last_action)}.") + f" Reward: {acum_reward}")
     fig.set_size_inches(12, 5)
     state = obs["observations"]
     action_mask = obs["action_mask"]
@@ -112,7 +122,7 @@ def graphic_obs(M, obs, num_task_slices):
 
     # Add text below the figures
     wait, reconfigure, n_task = action_mask[0], action_mask[1:20], action_mask[20:]
-    plt.subplots_adjust(left=0.1, right=0.9)
+    plt.subplots_adjust(left=0.05, right=0.95)
 
     # Remove axes and labels from ax3
     ax3.axis('off')
@@ -134,6 +144,4 @@ def graphic_obs(M, obs, num_task_slices):
     # ax3.add_patch(rect1)
     # ax3.add_patch(rect2)
 
-
-    plt.show()
-    
+    plt.show(block=False)    
