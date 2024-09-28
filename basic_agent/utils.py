@@ -1,7 +1,4 @@
 from collections import Counter
-from matplotlib import patches
-import matplotlib.pyplot as plt
-
 # Mapa de número de partición a sus instancias
 partition_map = {
     1: {"slices": ["7"] * 7, "sizes": [7], "instances" : [0,0,0,0,0,0,0]}, 
@@ -74,74 +71,3 @@ def _action_to_str(action):
         task = (action - 20) // 7
         instance = (action - 20) % 7
         return f"Put task {task} in instance {instance}"
-
-def graphic_obs(env):
-    M, obs, num_task_slices, last_action, acum_reward = env.M, env.obs, env.num_task_slices, env.last_action, env.acum_reward
-    colors = plt.cm.tab20.colors
-    figsize = (30, 5)
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=figsize, gridspec_kw={'width_ratios': [3, 3, 1]})
-    fig.suptitle((f"Initial state." if last_action is None else f"Last action: {_action_to_str(last_action)}.") + f" Reward: {acum_reward}")
-    fig.set_size_inches(12, 5)
-    state = obs["observations"]
-    action_mask = obs["action_mask"]
-    slice_i = 0
-    for instance_size in partition_map[state["partition"]]["sizes"]:
-        # Representa los 7 valores de state["slices_t"] en una gráfica de barras
-        rect = patches.Rectangle((slice_i, 0), instance_size, state["slices_t"][slice_i], alpha = 0.55,\
-                                        linewidth = 1, facecolor = colors[num_task_slices[slice_i] % len(colors)], edgecolor = 'black')
-        ax1.add_patch(rect)
-        slice_i += instance_size
-    ax1.set_ylim([0, M])
-    ax1.set_xlim([0, 7])
-    ax1.set_xlabel("Slices")
-    ax1.set_ylabel("Time")
-    ax1.set_yticks(range(0, M+1))
-    ax1.set_title(f"GPU Partition {partition_map[state['partition']]['sizes']}")
-
-    slices_l= [1,2,3,4,7]
-    # Create a bar chart for each task in state["ready_tasks"]
-    for i, task in enumerate(state["ready_tasks"]):
-        # Calculate the x positions for the bars
-        x = [j + i * 5 for j in range(5)]
-        # Create the bar chart
-        ax2.bar(x, task[:5], color=colors[i % len(colors)], alpha=0.55)
-        if task[-1] == 0:
-            continue
-        for j, slice_pos in enumerate(x):
-            ax2.text(slice_pos, -M/100, slices_l[j], ha='center', va='top')
-        ax2.text(2 + i * 5, -M/20, str(f"{task[-1]} {'task'if task[-1] == 1 else 'tasks'}"), ha='center', va='top')
-        
-    # Set y labels for the bar chart
-    ax2.set_ylabel("Time")
-    ax1.set_ylim([0, M])
-    # Set the title for the bar chart
-    ax2.set_title("Ready tasks")
-    # Remove the ticks on the x-axis of ax2
-    ax2.set_xticks([])
-    ax2.set_yticks(range(0, M+1))
-
-    # Add text below the figures
-    wait, reconfigure, n_task = action_mask[0], action_mask[1:20], action_mask[20:]
-    plt.subplots_adjust(left=0.05, right=0.95)
-
-    # Remove axes and labels from ax3
-    ax3.axis('off')
-
-    ax3.set_title("Posible actions")
-    # Add text to ax3
-    ax3.text(0.5, 0.95, "Wait" if wait else "", ha='center', va='center', fontsize=12)
-
-    ax3.text(0, 0.9, "Reconfigs:", ha='left', va='center', fontsize=12)
-    height = 0.85
-    for part, reconfig in enumerate(reconfigure):
-        if reconfig == 1:
-            ax3.text(0.5, height, str(partition_map[part+1]["sizes"]), ha='center', va='center', fontsize=12)
-            height -= 0.05
-
-    # # Draw rectangles on ax3
-    # rect1 = patches.Rectangle((0.1, 0.1), 0.3, 0.3, linewidth=1, edgecolor='black', facecolor='red')
-    # rect2 = patches.Rectangle((0.6, 0.1), 0.3, 0.3, linewidth=1, edgecolor='black', facecolor='blue')
-    # ax3.add_patch(rect1)
-    # ax3.add_patch(rect2)
-
-    plt.show(block=False)    
