@@ -1,5 +1,6 @@
 import os
-os.chdir("C:/Users/jorvi/RL_MIG_scheduler/basic_agent")
+
+os.chdir("basic_agent")
 import argparse
 import ray
 from ray import air, tune
@@ -7,6 +8,7 @@ from ray.tune.registry import register_env
 from ray.rllib.models import ModelCatalog
 from model import TorchParametricActionsModel
 from env import SchedEnv
+from aux_env import AuxEnv
 from ray.air.constants import TRAINING_ITERATION
 from ray.rllib.utils.test_utils import check_learning_achieved
 # from ray.rllib.utils.metrics import (

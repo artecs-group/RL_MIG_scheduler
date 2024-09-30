@@ -84,15 +84,17 @@ class Window:
 
     def _render_env(self, env):
         self._clear_axes()
-        state = env.obs["observations"]
+        partition = env.obs["partition"]
+        slices_t = env.obs["slices_t"]
+        ready_tasks = env.obs["ready_tasks"]
         action_mask = env.obs["action_mask"]
 
         self.fig.suptitle((f"Initial state." if env.last_action is None else f"Last action: {_action_to_str(env.last_action)}.") + f" Reward: {env.acum_reward}")
         
         slice_i = 0
-        for instance_size in partition_map[state["partition"]]["sizes"]:
+        for instance_size in partition_map[partition]["sizes"]:
             # Representa los 7 valores de state["slices_t"] en una gráfica de barras
-            rect = patches.Rectangle((slice_i, 0), instance_size, state["slices_t"][slice_i], alpha = 0.55,\
+            rect = patches.Rectangle((slice_i, 0), instance_size, slices_t[slice_i], alpha = 0.55,\
                                             linewidth = 1, facecolor = self.colors[env.num_task_slices[slice_i] % len(self.colors)], edgecolor = 'black')
             self.ax1.add_patch(rect)
             slice_i += instance_size
@@ -101,12 +103,12 @@ class Window:
         self.ax1.set_xlabel("Slices")
         self.ax1.set_ylabel("Time")
         self.ax1.set_yticks(range(0, env.M+1))
-        self.ax1.set_title(f"GPU Partition {partition_map[state['partition']]['sizes']}")
+        self.ax1.set_title(f"GPU Partition {partition_map[partition]['sizes']}")
 
         slices_l= [1,2,3,4,7]
         # Create a bar chart for each task in state["ready_tasks"]
         
-        for i, task in enumerate(state["ready_tasks"]):
+        for i, task in enumerate(ready_tasks):
             if task[-1] == 0:
                 continue
             # Calculate the x positions for the bars
