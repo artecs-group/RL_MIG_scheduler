@@ -8,7 +8,6 @@ from ray.tune.registry import register_env
 from ray.rllib.models import ModelCatalog
 from model import TorchParametricActionsModel
 from env import SchedEnv
-from aux_env import AuxEnv
 from ray.air.constants import TRAINING_ITERATION
 from ray.rllib.utils.test_utils import check_learning_achieved
 # from ray.rllib.utils.metrics import (
