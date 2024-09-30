@@ -19,7 +19,6 @@ class TorchParametricActionsModel(DQNTorchModel):
         num_outputs,
         model_config,
         name,
-        action_embed_size,
         **kw
     ):
         DQNTorchModel.__init__(
@@ -29,7 +28,7 @@ class TorchParametricActionsModel(DQNTorchModel):
         self.action_embed_model = TorchFC(
             obs_space,
             action_space,
-            action_embed_size,
+            action_space.n,
             model_config,
             name + "_action_embed",
         )
