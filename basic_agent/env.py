@@ -196,7 +196,7 @@ class SchedEnv(gym.Env):
 
         return self._get_numpy_obs_state(), reward, terminated, truncated, info
 
-    def close():
+    def close(*args, **kwargs):
         pass
 
     # def deepcopy(self):
