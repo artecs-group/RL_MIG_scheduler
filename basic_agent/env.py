@@ -4,7 +4,7 @@ import numpy as np
 from gymnasium.spaces import Dict, Discrete, MultiDiscrete, MultiBinary
 from utils import *
 from render import Window
-from gymnasium.wrappers import FlattenObservation
+
 
 class SchedEnv(gym.Env):
     def __init__(self, env_config):
@@ -89,7 +89,6 @@ class SchedEnv(gym.Env):
         ready_tasks_canonical = canonical_sort_tasks(self.M, pending_tasks[:self.N]) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         # Para tener un índice con el número de tipo de tarea, que luego me permita ser consistente en la representación gráfica
         self.num_type_task = list(range(len(ready_tasks_canonical)))
-        print(self.num_type_task)
         # Usamos el 0 para rellenar posiciones vacías en la representación de tareas ready
         init_ready_tasks = ready_tasks_canonical + [[0] * 6] * (self.N - len(ready_tasks_canonical)) # Rellenamos con arrays de 6 ceros hasta N
         self.obs = {
@@ -131,6 +130,8 @@ class SchedEnv(gym.Env):
             if instance_num not in times:
                 times[instance_num] = self.obs["slices_t"][i]
             else:
+                if times[instance_num] != self.obs["slices_t"][i]:
+                    print(self.obs["partition"], self.obs["slices_t"])
                 assert times[instance_num] == self.obs["slices_t"][i] # Todos los slices de una misma instancia tienen que tener el mismo tiempo
     
 
@@ -142,7 +143,8 @@ class SchedEnv(gym.Env):
         if action == 0:
             # Transitamos al primer slice que se libere
             min_slice_time = min(slice_time for slice_time in slices_t if slice_time > 0)
-            self.obs["slices_t"] = [slice_time - min_slice_time for slice_time in slices_t]
+            
+            self.obs["slices_t"] = [slice_time - min_slice_time if slice_time > 0 else 0 for slice_time in slices_t]
             # Recompensamos con -tiempo transcurrido, para minimizar el makespan
             reward = -min_slice_time
         # Reconfigurar

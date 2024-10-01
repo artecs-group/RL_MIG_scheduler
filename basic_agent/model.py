@@ -48,7 +48,7 @@ class TorchParametricActionsModel(TorchModelV2, torch.nn.Module):
 
         # Compute the predicted action embedding
         action_logits, _ = self.action_embed_model({"obs": real_obs})
-        print(action_logits)
+        #print(action_logits)
         # turns probit action mask into logit action mask
         inf_mask = torch.clamp(torch.log(action_mask), -1e10, FLOAT_MAX)
 
