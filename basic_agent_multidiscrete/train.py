@@ -1,6 +1,5 @@
 import os
-
-os.chdir("basic_agent")
+os.chdir("./basic_agent_multidiscrete")
 import argparse
 import ray
 from ray import air, tune

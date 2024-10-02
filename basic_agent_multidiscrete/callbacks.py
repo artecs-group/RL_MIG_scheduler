@@ -1,7 +1,7 @@
 from ray.rllib.algorithms.callbacks import DefaultCallbacks
 import os
-if os.getcwd().split('/')[-1] != "basic_agent":
-    os.chdir("basic_agent")
+if os.getcwd().split('/')[-1] != "basic_agent_multidiscrete" and os.getcwd().split('\\')[-1] != "basic_agent_multidiscrete":
+    os.chdir("./basic_agent_multidiscrete")
 from render import Window
 
 class CustomMetricsCallback(DefaultCallbacks):
