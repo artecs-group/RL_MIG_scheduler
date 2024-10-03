@@ -61,12 +61,12 @@ if __name__ == "__main__":
                 "custom_model": "action_mask_model",
             },
             # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
-            "num_gpus": 0,
-            "num_workers": 2,
+            "num_gpus": 1,
+            "num_env_runners": 2,
             "framework": "torch",
             "callbacks": CustomMetricsCallback,
             "evaluation_parallel_to_training": True,
-            "evaluation_num_workers" : 2,
+            "evaluation_num_env_runners" : 1,
             "evaluation_interval": 1,
             "evaluation_duration": "auto",
             "evaluation_duration_unit": "timesteps",
@@ -74,6 +74,9 @@ if __name__ == "__main__":
                 "explore": False,
                 "metrics_num_episodes_for_smoothing": 5,          
             },
+            "rollout_fragment_length": 200,  # Aumenta este valor
+            "sgd_minibatch_size": 128,  # Aumenta este valor
+            "train_batch_size": 4000,  # Aumenta este valor
         },
         **cfg,
     )
