@@ -26,7 +26,8 @@ class TorchParametricActionsModel(TorchModelV2, torch.nn.Module):
         )
         obs_len = obs_space.shape[0]-action_space.n
         orig_obs_space = Box(-1.0, 1.0, (obs_len,), np.float32)
-
+        model_config["vf_share_layers"] = True
+        model_config["fcnet_hiddens"] = [512, 512]
         self.action_embed_model = TorchFC(
             orig_obs_space,
             action_space,
@@ -34,6 +35,7 @@ class TorchParametricActionsModel(TorchModelV2, torch.nn.Module):
             model_config,
             name + "_action_embed",
         )
+        print()
 
     def forward(self, input_dict, state, seq_lens):
         shape_x, shape_y = (input_dict["obs_flat"][:, :69]).shape
