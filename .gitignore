@@ -4,3 +4,4 @@ python_env/
 */.vscode/*
 */.mypy_cache/*
 */.mypy
+*/trained_models/*
