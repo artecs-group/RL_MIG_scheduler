@@ -26,25 +26,6 @@ partition_map = {
 # Mapa de tamaño de instancia a posición de array en que se codifica
 instance_size_map = {1: 0, 2: 1, 3: 2, 4: 3, 7: 4}
 
-
-# Pasa a entero desde M-ário como representación
-def type_num_task(M, task):
-    return sum(time * (M ** i) for i, time in enumerate(task[::-1]))
-
-def canonical_sort_tasks(M, tasks):
-    # Pongo el número de tipo de tarea a cada una
-    numbered_tasks = [(type_num_task(M, task), task) for task in tasks]
-    # Cuento repeticiones de cada tipo
-    repeticiones = Counter(map(lambda v: v[0], numbered_tasks))
-    # Elimino repetidos (ya he contado cuantos había de cada tipo)
-    numbered_tasks = dict(numbered_tasks)
-    # Ordeno por tipo de tarea
-    canonical_tasks = sorted(numbered_tasks.items(), key=lambda x: x[0])
-    # Añado como última componente de cada tipo la cantidad de veces que se repite
-    canonical_tasks = [task + [repeticiones[type]] for type, task in canonical_tasks]     
-    return canonical_tasks
-
-
 def basic_print_obs(obs):
     state = obs["observations"]
     action_mask = obs["action_mask"]
@@ -73,8 +54,7 @@ def _action_to_str(action):
         instance = (action - 20) % 7
         return f"Put task {task} in instance {instance}"
     
-def time_discretization(ready_tasks, M, reconfig_time):
+def time_discretization(ready_tasks, M):
     max_time = max(max(task) for task in ready_tasks)
     time_step = max_time / M
-    reconfig_time_scaled = reconfig_time / time_step
-    return [[max(1, round(time / time_step)) for time in task] for task in ready_tasks], reconfig_time_scaled
+    return [[max(1, round(time / time_step)) for time in task] for task in ready_tasks]

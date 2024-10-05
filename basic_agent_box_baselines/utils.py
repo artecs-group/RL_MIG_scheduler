@@ -73,8 +73,7 @@ def _action_to_str(action):
         instance = (action - 20) % 7
         return f"Put task {task} in instance {instance}"
     
-def time_discretization(ready_tasks, M, reconfig_time):
+def time_discretization(ready_tasks, M):
     max_time = max(max(task) for task in ready_tasks)
     time_step = max_time / M
-    reconfig_time_scaled = reconfig_time / time_step
-    return [[max(1, round(time / time_step)) for time in task] for task in ready_tasks], reconfig_time_scaled
+    return [[max(1, round(time / time_step)) for time in task] for task in ready_tasks] 

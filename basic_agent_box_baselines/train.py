@@ -5,7 +5,7 @@ from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
 import os
-os.chdir("./basic_agent_md_baselines")
+os.chdir("./basic_agent_box_baselines")
 from env import SchedEnv
 
 
@@ -37,15 +37,22 @@ if __name__ == "__main__":
     # with ActionMasker. If the wrapper is detected, the masks are automatically
     # retrieved and used when learning. Note that MaskablePPO does not accept
     # a new action_mask_fn kwarg, as it did in an earlier draft.
-    model = MaskablePPO(MaskableActorCriticPolicy, env, verbose=2, device="cpu", gamma = 1)
-
+    observation_space = env.observation_space
+    action_space= env.action_space
+    lr_schedule = lambda _: 0.0003
+    net_arch = dict(pi=[512, 512], vf=[512, 512])
+    model = MaskablePPO(MaskableActorCriticPolicy, env = env, verbose=2, device="cpu", gamma = 1)
+    model.policy = MaskableActorCriticPolicy(observation_space=observation_space, action_space=action_space, lr_schedule=lr_schedule, net_arch=net_arch)
+    model.policy = model.policy.to(model.device)
     try:
         model.learn(args.num_steps)
+    
     except KeyboardInterrupt:
         print("Training interrupted")
-        model.save(f"./trained_models/bs3_N={args.N}_M={args.M}_s={model.num_timesteps}")
 
-    model.save(f"./trained_models/bs3_N={args.N}_M={args.M}_s={args.num_steps}")
+    model.policy_kwargs = {"net_arch": net_arch}
+    model.save(f"./trained_models/bs3_N={args.N}_M={args.M}_s={model.num_timesteps}")
+
 
     # # Note that use of masks is manual and optional outside of learning,
     # # so masking can be "removed" at testing time

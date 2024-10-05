@@ -1,22 +1,17 @@
 from collections import OrderedDict
 import gymnasium as gym
 import numpy as np
-from gymnasium.spaces import Dict, Discrete, MultiDiscrete, MultiBinary
+from gymnasium.spaces import Box, Discrete, MultiDiscrete, MultiBinary
 from utils import *
 from render import Window
-import os
 from task_times import generate_tasks
 
 
 class SchedEnv(gym.Env):
     def __init__(self, env_config):
         self.N = env_config["N"]
-        self.M = env_config["M"]
-        #self.reconfig_time = 1 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
-        partition_space = [19]
-        ready_task_space = ([(self.M + 1)] * 5 + [(self.N + 1)]) * self.N
-        slices_t_space = [(self.M + 1)] * 7
-        self.observation_space = MultiDiscrete(partition_space + ready_task_space + slices_t_space)
+        self.reconfig_time = 0.7 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
+        self.observation_space = Box(low=0, high=100, shape=(1 + 5 * self.N + 7,))
         self.action_space = Discrete(1 + 19 + 7 * self.N) # 1 accion esperar, 19 acciones de configuración, y 7*N acciones de asignar tarea
 
 
@@ -80,7 +75,7 @@ class SchedEnv(gym.Env):
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
-        return np.array(obs)
+        return np.array(obs, dtype=np.float32)
 
     def valid_action_mask(self):
         return np.array(self._get_action_mask())
@@ -95,17 +90,15 @@ class SchedEnv(gym.Env):
         instance_sizes=[1,2,3,4,7]
         scale_percs = [0.2,0.2,0.2,0.2,0.2]
         n_scale= {ins_size: int(perc*self.N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
-        ready_tasks, self.reconfig_time = time_discretization(ready_tasks, self.M)
-        ready_tasks_canonical = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90, 100])
+        #ready_tasks_canonical = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         
         # Para tener un índice con el número de tipo de tarea, que luego me permita ser consistente en la representación gráfica
-        self.num_type_task = list(range(len(ready_tasks_canonical)))
-        # Usamos el 0 para rellenar posiciones vacías en la representación de tareas ready
-        init_ready_tasks = ready_tasks_canonical + [[0] * 6] * (self.N - len(ready_tasks_canonical)) # Rellenamos con arrays de 6 ceros hasta N
+        self.num_type_task = list(range(len(ready_tasks)))
+
         self.obs = {
             "partition": init_partition,
-            "ready_tasks": init_ready_tasks,
+            "ready_tasks": ready_tasks,
             "slices_t": init_slice_t,
         }
         self.obs["action_mask"] = self._get_action_mask()
@@ -154,7 +147,7 @@ class SchedEnv(gym.Env):
         # Esperar
         if action == 0:
             # Transitamos al primer slice que se libere
-            min_slice_time = min(slice_time for slice_time in slices_t if slice_time > 0)
+            min_slice_time = min((slice_time for slice_time in slices_t if slice_time > 0), default=0)
             
             self.obs["slices_t"] = [slice_time - min_slice_time if slice_time > 0 else 0 for slice_time in slices_t]
             # Recompensamos con -tiempo transcurrido, para minimizar el makespan
@@ -172,8 +165,6 @@ class SchedEnv(gym.Env):
         else:
             task = (action - 20) // 7
             instance = (action - 20) % 7
-            # Quitamos la tarea de las ready_tasks
-            self.obs["ready_tasks"][task][-1] -= 1
             # Aumentamos el tiempo que tarda la tarea para el tamaño de la instancia en todos los slices de la instancia
             instance_size = partition_map[current_partition]["sizes"][instance]
             task_time = ready_tasks[task][instance_size_map[instance_size]]
@@ -181,15 +172,12 @@ class SchedEnv(gym.Env):
                 if instance_slice == instance:
                     self.obs["slices_t"][i] = task_time
                     self.num_task_slices[i] = self.num_type_task[task]
-
-            # Si es la última de cierto tipo, quitamos el tipo de ready task
-            if ready_tasks[task][-1] == 0:
-                ready_tasks.pop(task)
-                # Añadimos un tipo de tarea vacío al final para mantener la dimensionalidad
-                ready_tasks.append([0] * 6)
-                # Movemos ese número de tipo de tarea al final
-                self.num_type_task.append(self.num_type_task[task])
-                self.num_type_task.pop(task)
+            ready_tasks.pop(task)
+            # Añadimos un tipo de tarea vacío al final para mantener la dimensionalidad
+            ready_tasks.append([0] * 5)
+            # Movemos ese número de tipo de tarea al final
+            self.num_type_task.append(self.num_type_task[task])
+            self.num_type_task.pop(task)
             reward = 0
 
         
@@ -226,7 +214,7 @@ class SchedEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env_example = SchedEnv({"N": 15, "M": 7})
+    env_example = SchedEnv({"N": 15})
     print(env_example.observation_space.sample())
     initial_obs, _ = env_example.reset()
     print("initial obs:", initial_obs)

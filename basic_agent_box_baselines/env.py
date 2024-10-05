@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import gymnasium as gym
 import numpy as np
-from gymnasium.spaces import Dict, Discrete, MultiDiscrete, MultiBinary
+from gymnasium.spaces import Box, Discrete, MultiDiscrete, MultiBinary
 from utils import *
 from render import Window
 import os
@@ -12,11 +12,8 @@ class SchedEnv(gym.Env):
     def __init__(self, env_config):
         self.N = env_config["N"]
         self.M = env_config["M"]
-        #self.reconfig_time = 1 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
-        partition_space = [19]
-        ready_task_space = ([(self.M + 1)] * 5 + [(self.N + 1)]) * self.N
-        slices_t_space = [(self.M + 1)] * 7
-        self.observation_space = MultiDiscrete(partition_space + ready_task_space + slices_t_space)
+        self.reconfig_time = 1 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
+        self.observation_space = Box(low=0, high=max(self.M, self.N, 19), shape=(1 + 6 * self.N + 7,))
         self.action_space = Discrete(1 + 19 + 7 * self.N) # 1 accion esperar, 19 acciones de configuración, y 7*N acciones de asignar tarea
 
 
@@ -80,7 +77,7 @@ class SchedEnv(gym.Env):
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
-        return np.array(obs)
+        return np.array(obs, dtype=np.float32)
 
     def valid_action_mask(self):
         return np.array(self._get_action_mask())
@@ -96,7 +93,7 @@ class SchedEnv(gym.Env):
         scale_percs = [0.2,0.2,0.2,0.2,0.2]
         n_scale= {ins_size: int(perc*self.N) for ins_size, perc in zip(instance_sizes, scale_percs)}
         ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
-        ready_tasks, self.reconfig_time = time_discretization(ready_tasks, self.M)
+        ready_tasks = time_discretization(ready_tasks, self.M)
         ready_tasks_canonical = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         
         # Para tener un índice con el número de tipo de tarea, que luego me permita ser consistente en la representación gráfica

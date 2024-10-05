@@ -5,7 +5,7 @@ from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
 import os
-os.chdir("./basic_agent_md_baselines")
+os.chdir("./basic_agent_cont_baselines")
 from env import SchedEnv
 
 
@@ -23,15 +23,15 @@ parser.add_argument(
 parser.add_argument(
     "--N", type=int, default=15, help="Max num ready tasks."
 )
-parser.add_argument(
-    "--M", type=int, default=7, help="Discretization size."
-)
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    env = SchedEnv({"N": args.N, "M": args.M}) # Initialize env
+    env = SchedEnv({"N": args.N}) # Initialize env
     env = ActionMasker(env, mask_fn)  # Wrap to enable masking
+
+
+
 
     # MaskablePPO behaves the same as SB3's PPO unless the env is wrapped
     # with ActionMasker. If the wrapper is detected, the masks are automatically
@@ -41,11 +41,14 @@ if __name__ == "__main__":
 
     try:
         model.learn(args.num_steps)
+    
     except KeyboardInterrupt:
         print("Training interrupted")
-        model.save(f"./trained_models/bs3_N={args.N}_M={args.M}_s={model.num_timesteps}")
+    finally:
+        model.save(f"./trained_models/bs3_N={args.N}_s={model.num_timesteps}")
 
-    model.save(f"./trained_models/bs3_N={args.N}_M={args.M}_s={args.num_steps}")
+
+    model.save(f"./trained_models/bs3_N={args.N}_s={args.num_steps}")
 
     # # Note that use of masks is manual and optional outside of learning,
     # # so masking can be "removed" at testing time

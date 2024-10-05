@@ -2,12 +2,13 @@ from sb3_contrib.ppo_mask import MaskablePPO
 import argparse
 import os
 import numpy as np
-os.chdir("./basic_agent_md_baselines")
+os.chdir("./basic_agent_box_baselines")
 from env import SchedEnv
 import re
 from render import Window
 from pprint import pprint
 from utils import _action_to_str
+from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -58,9 +59,16 @@ if __name__ == "__main__":
     M = int(match.group(2))  # Segundo grupo es M
     steps = int(match.group(3))  # Tercer grupo es s
 
-    model = MaskablePPO.load(f"./trained_models/{args.filename}")
-
     env = SchedEnv({"N": N, "M": M})
     # mean_reward = evaluate(model, env, num_steps=10000)
     initial_obs, _ = env.reset()
+
+    model = MaskablePPO.load(f"./trained_models/{args.filename}")
+    observation_space = env.observation_space
+    action_space= env.action_space
+    lr_schedule = lambda _: 0.0003
+    net_arch = dict(pi=[512, 512], vf=[512, 512])
+    model.policy = MaskableActorCriticPolicy(observation_space=observation_space, action_space=action_space, lr_schedule=lr_schedule, net_arch=net_arch)
+    model.policy = model.policy.to(model.device)
+
     window = Window(env, model_trained=model)

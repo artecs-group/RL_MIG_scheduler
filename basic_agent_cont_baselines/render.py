@@ -94,6 +94,7 @@ class Window:
         slices_t = env.obs["slices_t"]
         ready_tasks = env.obs["ready_tasks"]
         action_mask = env.obs["action_mask"]
+        print(slices_t)
 
         self.fig.suptitle((f"Initial state." if env.last_action is None else f"Last action: {_action_to_str(env.last_action)}.") + f" Reward: {env.acum_reward}")
         
@@ -107,11 +108,11 @@ class Window:
                                             linewidth = 1, facecolor = self.colors[env.num_task_slices[slice_i] % len(self.colors)], edgecolor = 'black')
             self.ax1.add_patch(rect)
             slice_i += instance_size
-        self.ax1.set_ylim([0, env.M])
+        self.ax1.set_ylim([0, 100])
         self.ax1.set_xlim([0, 7])
         self.ax1.set_xlabel("Slices")
         self.ax1.set_ylabel("Time")
-        self.ax1.set_yticks(range(0, env.M+1))
+        #self.ax1.set_yticks(range(0, env.M+1))
         self.ax1.set_title(f"GPU Partition {partition_map[partition]['sizes']}")
 
         slices_l= [1,2,3,4,7]
@@ -124,18 +125,18 @@ class Window:
             x = [j + i * 5 for j in range(5)]
             # Create the bar chart
             self.ax2.bar(x, task[:5], color=self.colors[env.num_type_task[i] % len(self.colors)], alpha=0.55)
-            for j, slice_pos in enumerate(x):
-                self.ax2.text(slice_pos, -env.M/100, slices_l[j], ha='center', va='top')
-            self.ax2.text(2 + i * 5, -env.M/20, str(f"{task[-1]} {'task'if task[-1] == 1 else 'tasks'}"), ha='center', va='top')
+            # for j, slice_pos in enumerate(x):
+            #     self.ax2.text(slice_pos, -env.M/100, slices_l[j], ha='center', va='top')
+            # self.ax2.text(2 + i * 5, -env.M/20, str(f"{task[-1]} {'task'if task[-1] == 1 else 'tasks'}"), ha='center', va='top')
             
         # Set y labels for the bar chart
         self.ax2.set_ylabel("Time")
-        self.ax1.set_ylim([0, env.M])
+        self.ax2.set_ylim([0, 100])
         # Set the title for the bar chart
         self.ax2.set_title("Ready tasks")
         # Remove the ticks on the x-axis of ax2
         self.ax2.set_xticks([])
-        self.ax2.set_yticks(range(0, env.M+1))
+        #self.ax2.set_yticks(range(0, env.M+1))
 
         # Add text below the figures
         wait, reconfigure, n_task = action_mask[0], action_mask[1:20], action_mask[20:]
