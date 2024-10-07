@@ -1,4 +1,5 @@
 from collections import Counter
+from pprint import pprint
 # Mapa de número de partición a sus instancias
 partition_map = {
     1: {"slices": ["7"] * 7, "sizes": [7], "instances" : [0,0,0,0,0,0,0]}, 
@@ -31,18 +32,25 @@ instance_size_map = {1: 0, 2: 1, 3: 2, 4: 3, 7: 4}
 def type_num_task(M, task):
     return sum(time * (M ** i) for i, time in enumerate(task[::-1]))
 
+def _num_task_to_times(numbered_tasks):
+    dic_cont, dic_discrete = {}, {}
+    for num, task in numbered_tasks:
+        if num not in dic_cont:
+            dic_cont[num] = [[time_c for time_c, _ in task]]
+            dic_discrete[num] = [time_d for _, time_d in task]
+        else:
+            dic_cont[num].append([time_c for time_c, _ in task])
+    return dic_cont, dic_discrete
+
 def canonical_sort_tasks(M, tasks):
     # Pongo el número de tipo de tarea a cada una
-    numbered_tasks = [(type_num_task(M, task), task) for task in tasks]
-    # Cuento repeticiones de cada tipo
-    repeticiones = Counter(map(lambda v: v[0], numbered_tasks))
-    # Elimino repetidos (ya he contado cuantos había de cada tipo)
-    numbered_tasks = dict(numbered_tasks)
+    numbered_tasks = [(type_num_task(M, [time_d for _, time_d in task]), task) for task in tasks]
+    dic_cont, dic_discrete = _num_task_to_times(numbered_tasks)
     # Ordeno por tipo de tarea
-    canonical_tasks = sorted(numbered_tasks.items(), key=lambda x: x[0])
+    canonical_tasks = sorted(dic_discrete.items(), key=lambda x: x[0])
     # Añado como última componente de cada tipo la cantidad de veces que se repite
-    canonical_tasks = [task + [repeticiones[type]] for type, task in canonical_tasks]     
-    return canonical_tasks
+    canonical_tasks = [task + [len(dic_cont[type])] for type, task in canonical_tasks]     
+    return canonical_tasks, dic_cont
 
 
 def basic_print_obs(obs):
@@ -73,7 +81,8 @@ def _action_to_str(action):
         instance = (action - 20) % 7
         return f"Put task {task} in instance {instance}"
     
-def time_discretization(ready_tasks, M):
+def time_discretization(ready_tasks, M, reconfig_time):
     max_time = max(max(task) for task in ready_tasks)
     time_step = max_time / M
-    return [[max(1, round(time / time_step)) for time in task] for task in ready_tasks] 
+    reconfig_time_scaled = reconfig_time / time_step
+    return [[(time, round(time / time_step) + 1) for time in task] for task in ready_tasks], reconfig_time_scaled

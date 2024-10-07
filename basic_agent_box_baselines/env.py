@@ -12,8 +12,8 @@ class SchedEnv(gym.Env):
     def __init__(self, env_config):
         self.N = env_config["N"]
         self.M = env_config["M"]
-        self.reconfig_time = 1 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
-        self.observation_space = Box(low=0, high=max(self.M, self.N, 19), shape=(1 + 6 * self.N + 7,))
+        self.reconfig_time = 0.7 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
+        self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7,))
         self.action_space = Discrete(1 + 19 + 7 * self.N) # 1 accion esperar, 19 acciones de configuración, y 7*N acciones de asignar tarea
 
 
@@ -77,7 +77,8 @@ class SchedEnv(gym.Env):
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
-        return np.array(obs, dtype=np.float32)
+        
+        return (np.array(obs, dtype=np.float32)/max(self.M + 1, self.N, 19))
 
     def valid_action_mask(self):
         return np.array(self._get_action_mask())
@@ -90,12 +91,13 @@ class SchedEnv(gym.Env):
         #num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
         #pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]
         instance_sizes=[1,2,3,4,7]
-        scale_percs = [0.2,0.2,0.2,0.2,0.2]
+        scale_percs = [0,0.2,0.4,0.2,0.2]
         n_scale= {ins_size: int(perc*self.N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
-        ready_tasks = time_discretization(ready_tasks, self.M)
-        ready_tasks_canonical = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=100, times_range=[90,100])
+        ready_tasks, self.reconfig_time_scaled = time_discretization(ready_tasks, self.M, self.reconfig_time)
+        ready_tasks_canonical, self.dic_cont_times = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         
+
         # Para tener un índice con el número de tipo de tarea, que luego me permita ser consistente en la representación gráfica
         self.num_type_task = list(range(len(ready_tasks_canonical)))
         # Usamos el 0 para rellenar posiciones vacías en la representación de tareas ready
@@ -112,6 +114,9 @@ class SchedEnv(gym.Env):
         self.last_action = None # Aún no se ha hecho ninguna acción
 
         self.acum_reward = 0
+        
+        self.init_state = {"partition": init_partition, "slices_t": [0,0,0,0,0,0,0]}
+        self.actions = []
         
         return self.get_numpy_obs_state(), {}
     
@@ -156,24 +161,35 @@ class SchedEnv(gym.Env):
             self.obs["slices_t"] = [slice_time - min_slice_time if slice_time > 0 else 0 for slice_time in slices_t]
             # Recompensamos con -tiempo transcurrido, para minimizar el makespan
             reward = -min_slice_time
+            self.actions.append(("wait", None))
+            
         # Reconfigurar
         elif action <= 19:
             self.obs["partition"] = int(action)
-            # Para la reconfiguración introduzco una tarea ficticia en las instancias libres
-            for slice, time in enumerate(slices_t):
-                if time == 0:
-                    self.obs["slices_t"][slice] = self.reconfig_time
-                    self.num_task_slices[slice] = -1 # Para no confundir con tareas reales, represento con -1
-            reward = 0 # ¿Esto puede dar problemas? Realmente, no hasta que no se espere a la tarea ficticia de la reconfiguración no hay que sumar la recompensa negativa
+            # # Para la reconfiguración introduzco una tarea ficticia en las instancias libres
+            # for slice, time in enumerate(slices_t):
+            #     if time == 0:
+            #         self.obs["slices_t"][slice] = self.reconfig_time
+            #         self.num_task_slices[slice] = -1 # Para no confundir con tareas reales, represento con -1
+            reward = -self.reconfig_time_scaled # Recompensa en propoción al tiempo de reconfiguración
+            self.actions.append(("reconfig", int(action)))
         # Asignar tarea
         else:
             task = (action - 20) // 7
             instance = (action - 20) % 7
-            # Quitamos la tarea de las ready_tasks
-            self.obs["ready_tasks"][task][-1] -= 1
+
             # Aumentamos el tiempo que tarda la tarea para el tamaño de la instancia en todos los slices de la instancia
             instance_size = partition_map[current_partition]["sizes"][instance]
+
+            # Ponemos la tarea como seleccionada en la lista de acciones hechas
+            cont_time_selected = self.dic_cont_times[type_num_task(self.M, self.obs["ready_tasks"][task][:5])][0][instance_size_map[instance_size]]
+            self.actions.append(("assign", (cont_time_selected, instance)))
+            self.dic_cont_times[type_num_task(self.M, self.obs["ready_tasks"][task][:5])].pop(0)
+
             task_time = ready_tasks[task][instance_size_map[instance_size]]
+            # Quitamos la tarea de las ready_tasks
+            self.obs["ready_tasks"][task][-1] -= 1
+
             for i, instance_slice in enumerate(partition_map[current_partition]["instances"]):
                 if instance_slice == instance:
                     self.obs["slices_t"][i] = task_time
@@ -205,7 +221,6 @@ class SchedEnv(gym.Env):
 
         self.acum_reward += reward
 
-
         return self.get_numpy_obs_state(), reward, terminated, truncated, info
 
     def close(*args, **kwargs):
@@ -223,7 +238,7 @@ class SchedEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env_example = SchedEnv({"N": 15, "M": 7})
+    env_example = SchedEnv({"N": 15, "M": 14})
     print(env_example.observation_space.sample())
     initial_obs, _ = env_example.reset()
     print("initial obs:", initial_obs)
