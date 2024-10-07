@@ -47,7 +47,7 @@ if __name__ == "__main__":
     model = MaskablePPO(MaskableActorCriticPolicy, env = env, verbose=2, device="cpu", gamma = 1)
     model.policy = MaskableActorCriticPolicy(observation_space=observation_space, action_space=action_space, lr_schedule=lr_schedule, net_arch=net_arch)
     model.policy = model.policy.to(model.device)
-    my_callback = CustomCallback()
+    my_callback = CustomCallback(M = args.M, N = args.N)
     try:
         periodic_callback = EveryNTimesteps(n_steps=5000, callback=my_callback)
         model.learn(args.num_steps, callback=periodic_callback)
