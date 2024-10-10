@@ -1,3 +1,4 @@
+import csv
 import gymnasium as gym
 import numpy as np
 import argparse
@@ -26,7 +27,7 @@ parser.add_argument(
     "--N", type=int, default=15, help="Max num ready tasks."
 )
 parser.add_argument(
-    "--M", type=int, default=21, help="Discretization size."
+    "--M", type=int, default=7, help="Discretization size."
 )
 
 
@@ -48,8 +49,13 @@ if __name__ == "__main__":
     model.policy = MaskableActorCriticPolicy(observation_space=observation_space, action_space=action_space, lr_schedule=lr_schedule, net_arch=net_arch)
     model.policy = model.policy.to(model.device)
     my_callback = CustomCallback(M = args.M, N = args.N)
+    with open(f'ratios_N{args.N}_M{args.M}.csv', mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["step", "ratio makespan"])
+    my_callback.calculate_ratio(args.N, args.M, model)
     try:
         periodic_callback = EveryNTimesteps(n_steps=5000, callback=my_callback)
+        # Create or open the CSV file in write mode
         model.learn(args.num_steps, callback=periodic_callback)
     
     except KeyboardInterrupt:
