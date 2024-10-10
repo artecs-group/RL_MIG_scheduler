@@ -15,6 +15,11 @@ def _compute_makespan(init_state, actions):
             for pos, slice_ins in enumerate(partition_map[partition]["instances"]):
                 if slice_ins == instance:
                     slices_t[pos] += time
+        elif type == "exchange":
+            slice_0, slice_1 = slices_t[0], slices_t[1]
+            slices_t[0], slices_t[1] = slices_t[2], slices_t[3]
+            slices_t[2], slices_t[3] = slice_0, slice_1
+            
     return max(slices_t)
 
 

@@ -9,9 +9,10 @@ from task_times import generate_tasks
 
 
 class SchedEnv(gym.Env):
-    def __init__(self, env_config):
+    def __init__(self, env_config, type_tasks = "good_scaling"):
         self.N = env_config["N"]
         self.M = env_config["M"]
+        self.type_tasks = type_tasks
         self.reconfig_time = 0.7 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
         self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7,))
         self.action_space = Discrete(1 + 19 + 7 * self.N) # 1 accion esperar, 19 acciones de configuración, y 7*N acciones de asignar tarea
@@ -82,6 +83,8 @@ class SchedEnv(gym.Env):
 
     def valid_action_mask(self):
         return np.array(self._get_action_mask())
+    
+
 
     def reset(self, seed = None, options = None):
         init_partition = 1 # Por ahora, consideramos que se empieza en la partición 1 (una sola instancia de tamaño 7 siempre)
@@ -90,10 +93,12 @@ class SchedEnv(gym.Env):
         
         #num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
         #pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]
-        instance_sizes=[1,2,3,4,7]
-        scale_percs = [0,0.2,0.4,0.2,0.2]
-        n_scale= {ins_size: int(perc*self.N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=100, times_range=[90,100])
+        # scale_percs = [0,0.2,0.4,0.2,0.2]
+        # n_scale= {ins_size: int(perc*self.N//2) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        # ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=100, times_range=[90,100])
+        # scale_percs = [0.2,0.2,0.2,0.2,0.2]
+        # n_scale= {ins_size: int(perc*self.N//2) if self.N % 2 == 0 else  int(perc*self.N//2) + 1 for ins_size, perc in zip(instance_sizes, scale_percs)}
+        ready_tasks = get_ready_tasks(self.type_tasks, self.N)
         ready_tasks, self.reconfig_time_scaled = time_discretization(ready_tasks, self.M, self.reconfig_time)
         ready_tasks_canonical, self.dic_cont_times = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         
@@ -238,7 +243,7 @@ class SchedEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env_example = SchedEnv({"N": 15, "M": 14})
+    env_example = SchedEnv({"N": 15, "M": 35}, type_tasks="mix_scaling")
     print(env_example.observation_space.sample())
     initial_obs, _ = env_example.reset()
     print("initial obs:", initial_obs)

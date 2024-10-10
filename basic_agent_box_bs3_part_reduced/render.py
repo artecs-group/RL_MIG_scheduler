@@ -9,10 +9,11 @@ import copy
 class Window:
     colors = plt.cm.tab20.colors
 
-    def __init__(self, initial_env, mem_size = 5):
+    def __init__(self, initial_env, mem_size = 5, model_trained = None):
+        self.model_trained = model_trained
         figsize = (30, 5)
-        self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1, 3, figsize=figsize, gridspec_kw={'width_ratios': [3, 3, 1]})  
-        self.fig.set_size_inches(12, 5)
+        self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1, 3, figsize=figsize, gridspec_kw={'width_ratios': [4, 6, 1]})  
+        #self.fig.set_size_inches(12, 5)
         self.fig.subplots_adjust(left=0.05, right=0.95, bottom=0.2)
         # Crear los botones de "Siguiente" y "Anterior"
         axprev = plt.axes([0.3, 0, 0.1, 0.075])
@@ -23,7 +24,7 @@ class Window:
         self.bprev.on_clicked(self._previous_figure)
         self.bnext = Button(axnext, 'Next')
         self.bnext.on_clicked(self._next_figure)
-        self.bstep = Button(axstep, 'Random Step')
+        self.bstep = Button(axstep, 'Step' if self.model_trained else 'Random Step')
         self.bstep.on_clicked(self._step)
 
         self.mem_size = mem_size
@@ -59,14 +60,19 @@ class Window:
             self.bstep.ax.set_visible(True)
         self._render_env(self.envs[self.current_env])    
         
+    
 
-    def _step(self, event):
+    def _step(self, event, action = None):
         if self.terminated or self.current_env != len(self.envs) -1:
             self.bstep.ax.set_visible(False)
             return
         env = copy.deepcopy(self.envs[-1])
-        action = np.random.choice(np.flatnonzero(env.obs["action_mask"]))
-        _, _, terminated, _, _= env.step(action)
+        if self.model_trained:
+            action, _ = self.model_trained.predict(env.get_numpy_obs_state(), action_masks=env.valid_action_mask())
+        else:
+            action = np.random.choice(np.flatnonzero(env.obs["action_mask"]))
+        obs, reward, terminated, _, _ = env.step(action)
+        print("Terminated", terminated, "Reward", reward)
         self.terminated = terminated
         self._render_env(env)
         if len(self.envs) < self.mem_size:
@@ -92,7 +98,10 @@ class Window:
         self.fig.suptitle((f"Initial state." if env.last_action is None else f"Last action: {_action_to_str(env.last_action)}.") + f" Reward: {env.acum_reward}")
         
         slice_i = 0
-        for instance_size in partition_map[partition]["sizes"]:
+        sizes = partition_map[partition]["sizes"]
+        if sizes[0] == 3:
+            sizes[0] = 4
+        for instance_size in sizes:
             # Representa los 7 valores de state["slices_t"] en una gráfica de barras
             rect = patches.Rectangle((slice_i, 0), instance_size, slices_t[slice_i], alpha = 0.55,\
                                             linewidth = 1, facecolor = self.colors[env.num_task_slices[slice_i] % len(self.colors)], edgecolor = 'black')
@@ -129,7 +138,7 @@ class Window:
         self.ax2.set_yticks(range(0, env.M+1))
 
         # Add text below the figures
-        wait, reconfigure, n_task = action_mask[0], action_mask[1:20], action_mask[20:]
+        wait, reconfigure, n_task = action_mask[0], action_mask[1:17], action_mask[17:]
 
         # Remove axes and labels from ax3
         self.ax3.axis('off')
@@ -142,6 +151,7 @@ class Window:
         height = 0.85
         for part, reconfig in enumerate(reconfigure):
             if reconfig == 1:
+                
                 self.ax3.text(0.5, height, str(partition_map[part+1]["sizes"]), ha='center', va='center', fontsize=12)
                 height -= 0.05
 

@@ -7,7 +7,7 @@ from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
 from stable_baselines3.common.callbacks import EveryNTimesteps
 import os
-os.chdir("./basic_agent_box_baselines")
+os.chdir("./basic_agent_box_bs3_part_reduced")
 from env import SchedEnv
 from callbacks import CustomCallback
 
