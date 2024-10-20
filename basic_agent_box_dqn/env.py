@@ -9,16 +9,16 @@ from task_times import generate_tasks
 
 
 class SchedEnv(gym.Env):
-    def __init__(self, env_config):
+    def __init__(self, env_config, type_tasks = "good_scaling"):
         self.N = env_config["N"]
         self.M = env_config["M"]
+        self.type_task = type_tasks
         self.reconfig_time = 1 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
         self.observation_space = Dict({
             "action_mask": Box(low=0, high=1, shape=(1 + 19 + 7 * self.N,)),
             "real_obs": Box(low=0, high=max(self.M, self.N, 19), shape=(1 + 6 * self.N + 7,))
         })
         self.action_space = Discrete(1 + 19 + 7 * self.N) # 1 accion esperar, 19 acciones de configuración, y 7*N acciones de asignar tarea
-
 
     def _get_action_mask(self):
         current_partition = self.obs["partition"]
@@ -89,14 +89,9 @@ class SchedEnv(gym.Env):
         init_slice_t = [0,0,0,0,0,0,0] # Consideramos que todos los slices están libres al principio      
         self.num_task_slices = [0,0,0,0,1,1,1] # Lleva el número de tipo de tarea que hay ejeuctando en cada slice
         
-        #num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
-        #pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]
-        instance_sizes=[1,2,3,4,7]
-        scale_percs = [0.2,0.2,0.2,0.2,0.2]
-        n_scale= {ins_size: int(perc*self.N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
-        ready_tasks = time_discretization(ready_tasks, self.M)
-        ready_tasks_canonical = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
+        ready_tasks = get_ready_tasks(self.type_tasks, self.N)
+        ready_tasks, self.reconfig_time_scaled = time_discretization(ready_tasks, self.M, self.reconfig_time)
+        ready_tasks_canonical, self.dic_cont_times = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
         
         # Para tener un índice con el número de tipo de tarea, que luego me permita ser consistente en la representación gráfica
         self.num_type_task = list(range(len(ready_tasks_canonical)))

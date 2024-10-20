@@ -1,4 +1,7 @@
 from collections import Counter
+import random
+from task_times import generate_tasks
+
 # Mapa de número de partición a sus instancias
 partition_map = {
     1: {"slices": ["7"] * 7, "sizes": [7], "instances" : [0,0,0,0,0,0,0]}, 
@@ -77,3 +80,49 @@ def time_discretization(ready_tasks, M):
     max_time = max(max(task) for task in ready_tasks)
     time_step = max_time / M
     return [[max(1, round(time / time_step)) for time in task] for task in ready_tasks] 
+
+
+def _n_scale_padding(n_scale, instance_sizes, N):
+    sum_scale = sum(n_scale.values())
+    for ins_size in instance_sizes:
+        if sum_scale >= N:
+            break
+        n_scale[ins_size] += 1
+        sum_scale += 1
+    return n_scale
+
+def get_ready_tasks(type_tasks, N):
+    instance_sizes=[1,2,3,4,7]
+    if type_tasks == "good_scaling":
+        scale_percs = [0,0,0.2,0.4,0.4]
+        n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes[::-1], N)
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=100, times_range=[90,100])
+    elif type_tasks == "bad_scaling":
+        scale_percs = [0.2,0.2,0.2,0.2,0.2]
+        n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
+    elif type_tasks == "mix_scaling": 
+        # ready_tasks_good = get_ready_tasks(type_tasks="good_scaling", N = N // 2)
+        # ready_tasks_bad = get_ready_tasks(type_tasks="bad_scaling", N = N // 2 if N % 2 == 0 else N // 2 + 1)
+        scale_percs = [0,0,0,0,1]
+        N_good = N // 2
+        # n_scale= {ins_size: int(perc*N_good) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        # n_scale = _n_scale_padding(n_scale, instance_sizes[::-1], N_good)
+        # ready_tasks_good = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=100, times_range=[90,100])
+        ready_tasks_good = [[random.uniform(90, 100)] for _ in range(N_good)]
+        for task_times in ready_tasks_good:
+            for _ in range(3):
+                last_time = task_times[-1]
+                task_times.append(last_time * random.uniform(0.97, 1))
+            task_times.append(random.uniform(0.1, 5))
+
+        scale_percs = [1,0,0,0,0]
+        N_bad = N // 2 if N % 2 == 0 else N // 2 + 1
+        n_scale= {ins_size: int(perc*N_bad) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes, N_bad)
+        ready_tasks_bad = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=0, times_range=[90,100])
+
+        ready_tasks = ready_tasks_good + ready_tasks_bad
+    return ready_tasks
