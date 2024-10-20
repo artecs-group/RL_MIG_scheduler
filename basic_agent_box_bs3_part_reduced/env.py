@@ -87,9 +87,9 @@ class SchedEnv(gym.Env):
 
 
     def reset(self, seed = None, options = None):
-        init_partition = 1 # Por ahora, consideramos que se empieza en la partición 1 (una sola instancia de tamaño 7 siempre)
+        init_partition = 2 # Por ahora, consideramos que se empieza en la partición 1 (una sola instancia de tamaño 7 siempre)
         init_slice_t = [0,0,0,0,0,0,0] # Consideramos que todos los slices están libres al principio      
-        self.num_task_slices = [0,0,0,0,1,1,1] # Lleva el número de tipo de tarea que hay ejeuctando en cada slice
+        self.num_task_slices = [0,0,0,0,0,0,0] # Lleva el número de tipo de tarea que hay ejeuctando en cada slice
         
         #num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
         #pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]

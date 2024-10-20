@@ -17,7 +17,6 @@ class SchedEnv(gym.Env):
         self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7,))
         self.action_space = Discrete(1 + 19 + 7 * self.N) # 1 accion esperar, 19 acciones de configuración, y 7*N acciones de asignar tarea
 
-
     def _get_action_mask(self):
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
@@ -78,8 +77,9 @@ class SchedEnv(gym.Env):
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
+        np_state = np.array(obs, dtype=np.float32)/max(self.M + 1, self.N, 19)
         
-        return (np.array(obs, dtype=np.float32)/max(self.M + 1, self.N, 19))
+        return np_state
 
     def valid_action_mask(self):
         return np.array(self._get_action_mask())

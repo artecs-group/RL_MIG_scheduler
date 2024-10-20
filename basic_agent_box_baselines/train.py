@@ -9,7 +9,7 @@ from stable_baselines3.common.callbacks import EveryNTimesteps
 import os
 os.chdir("./basic_agent_box_baselines")
 from env import SchedEnv
-from callbacks import CustomCallback
+from callbacks import CustomCallback, CallbackNumStates
 
 
 def mask_fn(env):
@@ -24,10 +24,10 @@ parser.add_argument(
     "--num_steps", type=int, default=500000, help="Num steps."
 )
 parser.add_argument(
-    "--N", type=int, default=15, help="Max num ready tasks."
+    "--N", type=int, default=7, help="Max num ready tasks."
 )
 parser.add_argument(
-    "--M", type=int, default=35, help="Discretization size."
+    "--M", type=int, default=7, help="Discretization size."
 )
 
 parser.add_argument(
@@ -60,11 +60,12 @@ if __name__ == "__main__":
             writer = csv.writer(file)
             writer.writerow(["step", "ratio makespan"])
     my_callback.calculate_ratio(args.N, args.M, model)
-
+    callback_num_states = CallbackNumStates()
     try:
         periodic_callback = EveryNTimesteps(n_steps=5000, callback=my_callback)
+        periodic_num_states = EveryNTimesteps(n_steps=1, callback=callback_num_states)
         # Create or open the CSV file in write mode
-        model.learn(args.num_steps, callback=periodic_callback)
+        model.learn(args.num_steps, callback=[periodic_num_states, periodic_callback])
     
     except KeyboardInterrupt:
         print("Training interrupted")

@@ -50,7 +50,6 @@ def evaluate(model, env, num_steps=1000):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-
     pattern = r"N=(\d+)_M=(\d+)_s=(\d+)_(.*).zip"
     match = re.search(pattern, args.filename)
 

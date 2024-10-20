@@ -26,9 +26,7 @@ def _makespan_lower_bound(dic_cont_times):
             areas = [pos_to_slices[pos] * time for pos, time in enumerate(times_t)]
             min_area = min(areas)
             sum_min_area += min_area
-    return sum_min_area / 7
-
-        
+    return sum_min_area / 7     
 
 class CustomCallback(BaseCallback):
     def __init__(self, M, N, type_tasks = "good_scaling", verbose=1):
@@ -60,6 +58,16 @@ class CustomCallback(BaseCallback):
             writer.writerow([model.num_timesteps, sum_ratios / num_episodes])
         
 
-    def _on_step(self):      
+    def _on_step(self):
+        print("Num states visited", len(CallbackNumStates.visited_states))
         self.calculate_ratio(self.N, self.M, self.model)
+        return True
+    
+class CallbackNumStates(BaseCallback):
+    visited_states = set() # class variable
+    def __init__(self, verbose=1):
+        super(CallbackNumStates, self).__init__(verbose)
+
+    def _on_step(self):
+        self.visited_states.add(tuple(self.locals["obs_tensor"]))
         return True
