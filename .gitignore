@@ -5,3 +5,5 @@ python_env/
 */.mypy_cache/*
 */.mypy
 */trained_models/*
+*.pkl
+*.json

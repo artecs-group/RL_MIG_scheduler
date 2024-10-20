@@ -83,6 +83,12 @@ for iteration in tqdm(range(iteration_num)):
     print('episode={}, step_num={:.2f}, mean_reward={:.2f}'.format(episode_num, mean_step_num, mean_reward))
 
     if (iteration+1) % 100 == 0:
+        save_result = algo.save("./DQN_M{}_N{}_save_episode_{}".format(args.M, args.N, episode_num))
+        path_to_checkpoint = save_result.checkpoint.path
+        print(
+            "An Algorithm checkpoint has been created inside directory: "
+            f"'{path_to_checkpoint}'."
+        )
         train_df = pd.DataFrame.from_dict(train_dict)
         train_df.to_csv('./DQN_ray_train_df_episode_{}'.format(episode_num), index=False)
         print('------ train_df is saved at episode={}'.format(episode_num))
