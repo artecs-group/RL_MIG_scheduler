@@ -12,7 +12,7 @@ import copy
 class Window:
     colors = plt.cm.tab20.colors
 
-    def __init__(self, initial_env, mem_size = 5, model_trained = None, lower_bound = None):
+    def __init__(self, initial_env, lower_bound = None, mem_size = 5, model_trained = None):
         self._heuristic_solve(initial_env)
         self.model_trained = model_trained
         self.lower_bound = lower_bound
@@ -119,11 +119,9 @@ class Window:
             
             
     def _heuristic_solve(self, env):
-        pprint(env.dic_cont_times)
         times = [time for list_times in env.dic_cont_times.values() for time in list_times]
         sizes = [1,2,3,4,7]
         times = [[(i, sizes[j], time) for j, time in enumerate(time_task)] for i, time_task in enumerate(times)]
-        print(times)
         allotmets_family = create_allotments_family(times, 7)
         lb_makespane_opt = lower_bound_makespan_opt(allotmets_family, 7)
         tree = moldable_scheduler_tree(7, allotmets_family, "A100")
@@ -169,9 +167,10 @@ class Window:
         title = (f"Initial state." if env.last_action is None else f"Last action: {action_to_str(env.last_action)}.") + f" Reward: {env.acum_reward:.2f}."
         title += f" Real time lower bound: {self.lower_bound:.2f}" if self.lower_bound else ""
         if self.terminated:
-            makespan = compute_makespan(env.init_state, env.actions)
-            ratio = makespan / self.lower_bound
-            title = f"Real lower bound: {self.lower_bound:.2f}.  Real Makespan: {makespan:.2f}. Ratio: {ratio:.2f}."
+            if self.lower_bound:
+                makespan = compute_makespan(env.init_state, env.actions)
+                ratio = makespan / self.lower_bound
+                title = f"Real lower bound: {self.lower_bound:.2f}.  Real Makespan: {makespan:.2f}. Ratio: {ratio:.2f}."
         
         self.fig.suptitle(title)
         slice_i = 0

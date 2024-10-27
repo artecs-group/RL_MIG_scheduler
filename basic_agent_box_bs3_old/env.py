@@ -14,7 +14,7 @@ class SchedEnv(gym.Env):
         self.M = env_config["M"]
         self.type_tasks = type_tasks
         self.reconfig_time = 0.7
-        self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7 + 1,)) # La última indica si el último momento fue una reconfiguración
+        self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7,)) # La última indica si el último momento fue una reconfiguración
         self.action_space = Discrete(1 + 16 + 7 * self.N) # 1 accion esperar, 13 acciones de configuración (3 eliminadas, y 3 fusionadas en el step), y 7*N acciones de asignar tarea
         #self.part_distribution = {}
 
@@ -28,7 +28,7 @@ class SchedEnv(gym.Env):
 
         # Reconfiguraciones válidas
         # Si no hay tareas ready o se acaba de reconfigurar, no tiene sentido reconfigurar la GPU
-        if ready_tasks[0][-1] == 0 or self.obs["last_reconfig"] == 1:
+        if ready_tasks[0][-1] == 0:
             reconfig_mask = [0] * 16
         else:
             reconfig_mask = [1] * 16
@@ -78,7 +78,6 @@ class SchedEnv(gym.Env):
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
-        obs += [self.obs["last_reconfig"]]
         
         return (np.array(obs, dtype=np.float32)/max(self.M + 1, self.N, 19))
 
@@ -153,7 +152,6 @@ class SchedEnv(gym.Env):
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
-        self.obs["last_reconfig"] = 0
         # Esperar
         if action == 0:
             # Transitamos al primer slice que se libere
@@ -181,7 +179,6 @@ class SchedEnv(gym.Env):
             self.obs["partition"] = int(action)
             reward = -self.reconfig_time_scaled # Recompensa en propoción al tiempo de reconfiguración
             self.actions.append(("reconfig", int(action)))
-            self.obs["last_reconfig"] = 1
         # Asignar tarea
         else:
             task = (action - 17) // 7

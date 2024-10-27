@@ -21,7 +21,7 @@ def mask_fn(env):
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--num_steps", type=int, default=500000, help="Num steps."
+    "--num_steps", type=int, default=100000000, help="Num steps."
 )
 parser.add_argument(
     "--N", type=int, default=15, help="Max num ready tasks."
@@ -31,7 +31,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--type-tasks", type=str, default="mix_scaling", help="Type of tasks for training."
+    "--type-tasks", type=str, default="good_scaling", help="Type of tasks for training."
 )
 
 
@@ -50,9 +50,9 @@ if __name__ == "__main__":
     observation_space = env.observation_space
     action_space= env.action_space
     lr_schedule = lambda _: 0.0003
-    #net_arch = dict(pi=[512, 512], vf=[512, 512])
-    model = MaskablePPO(MaskableActorCriticPolicy, ent_coef = 0.5, env = env, verbose=2, device="cpu", gamma = 1)
-    model.policy = MaskableActorCriticPolicy(observation_space=observation_space, action_space=action_space, lr_schedule=lr_schedule)
+    net_arch = dict(pi=[512, 512], vf=[512, 512])
+    model = MaskablePPO(MaskableActorCriticPolicy, ent_coef=0.01, env = env, verbose=2, device="cpu", gamma = 1)
+    model.policy = MaskableActorCriticPolicy(observation_space=observation_space, action_space=action_space, lr_schedule=lr_schedule, net_arch=net_arch)
     model.policy = model.policy.to(model.device)
     my_callback = CustomCallback(M = args.M, N = args.N, type_tasks=args.type_tasks)
 
@@ -62,17 +62,14 @@ if __name__ == "__main__":
     my_callback.calculate_ratio(args.N, args.M, model)
 
     try:
-        periodic_callback = EveryNTimesteps(n_steps=5000, callback=my_callback)
-        # Epsilon greedy con el ent_coef
-        for _ in range(5):
-            # Create or open the CSV file in write mode
-            model.learn(args.num_steps // 5, callback=periodic_callback)
-            model.ent_coef = model.ent_coef * 0.5
+        periodic_callback = EveryNTimesteps(n_steps=100000, callback=my_callback)
+        # Create or open the CSV file in write mode
+        model.learn(args.num_steps, callback=periodic_callback)
     
     except KeyboardInterrupt:
         print("Training interrupted")
 
-    #model.policy_kwargs = {"net_arch": net_arch}
+    model.policy_kwargs = {"net_arch": net_arch}
     model.save(f"./trained_models/bs3_N={args.N}_M={args.M}_s={model.num_timesteps}_{args.type_tasks}")
 
 

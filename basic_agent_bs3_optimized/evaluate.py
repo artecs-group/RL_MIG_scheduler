@@ -63,6 +63,7 @@ if __name__ == "__main__":
     # mean_reward = evaluate(model, env, num_steps=10000)
     initial_obs, _ = env.reset()
     mk_lb = makespan_lower_bound(env.dic_cont_times)
+
     model = MaskablePPO.load(f"./trained_models/{args.filename}")
 
-    window = Window(env, model_trained=model, lower_bound = mk_lb)
+    window = Window(env, model_trained=model, lower_bound=mk_lb)

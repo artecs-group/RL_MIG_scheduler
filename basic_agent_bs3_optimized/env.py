@@ -6,6 +6,7 @@ from utils import *
 from render import Window
 import os
 from task_times import generate_tasks
+import random
 
 
 class SchedEnv(gym.Env):
@@ -14,9 +15,9 @@ class SchedEnv(gym.Env):
         self.M = env_config["M"]
         self.type_tasks = type_tasks
         self.reconfig_time = 0.7
-        self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7 + 1,)) # La última indica si el último momento fue una reconfiguración
+        self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7,))
         self.action_space = Discrete(1 + 16 + 7 * self.N) # 1 accion esperar, 13 acciones de configuración (3 eliminadas, y 3 fusionadas en el step), y 7*N acciones de asignar tarea
-        #self.part_distribution = {}
+
 
     def _get_action_mask(self):
         current_partition = self.obs["partition"]
@@ -27,8 +28,8 @@ class SchedEnv(gym.Env):
         wait = 1 if any(slice_t != 0 for slice_t in slices_t) else 0
 
         # Reconfiguraciones válidas
-        # Si no hay tareas ready o se acaba de reconfigurar, no tiene sentido reconfigurar la GPU
-        if ready_tasks[0][-1] == 0 or self.obs["last_reconfig"] == 1:
+        # Si no hay tareas ready, no tiene sentido reconfigurar la GPU
+        if ready_tasks[0][-1] == 0:
             reconfig_mask = [0] * 16
         else:
             reconfig_mask = [1] * 16
@@ -78,7 +79,6 @@ class SchedEnv(gym.Env):
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
-        obs += [self.obs["last_reconfig"]]
         
         return (np.array(obs, dtype=np.float32)/max(self.M + 1, self.N, 19))
 
@@ -88,10 +88,22 @@ class SchedEnv(gym.Env):
 
 
     def reset(self, seed = None, options = None):
-        init_partition = 2 # Por ahora, consideramos que se empieza en la partición 1 (una sola instancia de tamaño 7 siempre)
-        init_slice_t = [0,0,0,0,0,0,0] # Consideramos que todos los slices están libres al principio      
-        self.num_task_slices = [0,0,0,0,0,0,0] # Lleva el número de tipo de tarea que hay ejeuctando en cada slice
+        init_partition = random.randint(1, 16) # Seleccionamos aleatoriamente la partición inicial
+        part_sizes = partition_map[init_partition]["sizes"]
+        init_slice_t = []
+        for instance_size in part_sizes:
+            init_instance_time = random.randint(0, self.M)
+            init_slice_t += [init_instance_time] * instance_size
+
+        self.num_task_slices = partition_map[init_partition]["instances"].copy() # Lleva el número de tipo de tarea que hay ejecutando en cada slice
         
+        #num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
+        #pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]
+        # scale_percs = [0,0.2,0.4,0.2,0.2]
+        # n_scale= {ins_size: int(perc*self.N//2) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        # ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=100, times_range=[90,100])
+        # scale_percs = [0.2,0.2,0.2,0.2,0.2]
+        # n_scale= {ins_size: int(perc*self.N//2) if self.N % 2 == 0 else  int(perc*self.N//2) + 1 for ins_size, perc in zip(instance_sizes, scale_percs)}
         ready_tasks = get_ready_tasks(self.type_tasks, self.N)
         ready_tasks, self.reconfig_time_scaled = time_discretization(ready_tasks, self.M, self.reconfig_time)
         ready_tasks_canonical, self.dic_cont_times = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
@@ -105,7 +117,6 @@ class SchedEnv(gym.Env):
             "partition": init_partition,
             "ready_tasks": init_ready_tasks,
             "slices_t": init_slice_t,
-            "last_reconfig": 0
         }
         self.obs["action_mask"] = self._get_action_mask()
 
@@ -153,7 +164,6 @@ class SchedEnv(gym.Env):
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
-        self.obs["last_reconfig"] = 0
         # Esperar
         if action == 0:
             # Transitamos al primer slice que se libere
@@ -163,14 +173,9 @@ class SchedEnv(gym.Env):
             # Recompensamos con -tiempo transcurrido, para minimizar el makespan
             reward = -min_slice_time
             self.actions.append(("wait", None))
+            
         # Reconfigurar
         elif action <= 16:
-            # reconfig_str = action_to_str(action)
-            # if reconfig_str not in self.part_distribution:
-            #     self.part_distribution[reconfig_str] = 1
-            # else:
-            #     self.part_distribution[reconfig_str] += 1
-            # pprint(self.part_distribution)
             # Fusión de acciones de reconfiguración
             if action == 11 or action == 12 or action == 13: 
                 slice_0, slice_1 = self.obs["slices_t"][0], self.obs["slices_t"][1]
@@ -181,7 +186,6 @@ class SchedEnv(gym.Env):
             self.obs["partition"] = int(action)
             reward = -self.reconfig_time_scaled # Recompensa en propoción al tiempo de reconfiguración
             self.actions.append(("reconfig", int(action)))
-            self.obs["last_reconfig"] = 1
         # Asignar tarea
         else:
             task = (action - 17) // 7
@@ -246,7 +250,7 @@ class SchedEnv(gym.Env):
 
 
 if __name__ == "__main__":
-    env_example = SchedEnv({"N": 15, "M": 35}, type_tasks="good_scaling")
+    env_example = SchedEnv({"N": 15, "M": 35}, type_tasks="mix_scaling")
     print(env_example.observation_space.sample())
     initial_obs, _ = env_example.reset()
     print("initial obs:", initial_obs)
