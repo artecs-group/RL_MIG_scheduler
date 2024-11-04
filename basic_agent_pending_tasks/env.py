@@ -15,7 +15,7 @@ class SchedEnv(gym.Env):
         self.M = env_config["M"]
         self.type_tasks = type_tasks
         self.reconfig_time = 0.7
-        self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7,))
+        self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7 + 1,))
         self.action_space = Discrete(1 + 16 + 7 * self.N) # 1 accion esperar, 13 acciones de configuración (3 eliminadas, y 3 fusionadas en el step), y 7*N acciones de asignar tarea
 
 
@@ -23,13 +23,14 @@ class SchedEnv(gym.Env):
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
+        last_reconfig = self.obs["last_reconfig"]
 
         # La acción de esperar sólo es válida si hay tareas en la GPU
         wait = 1 if any(slice_t != 0 for slice_t in slices_t) else 0
 
         # Reconfiguraciones válidas
         # Si no hay tareas ready, no tiene sentido reconfigurar la GPU
-        if ready_tasks[0][-1] == 0:
+        if ready_tasks[0][-1] == 0 or last_reconfig == 1:
             reconfig_mask = [0] * 16
         else:
             reconfig_mask = [1] * 16
@@ -79,6 +80,7 @@ class SchedEnv(gym.Env):
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
+        obs += [self.obs["last_reconfig"]]
         
         return (np.array(obs, dtype=np.float32)/max(self.M + 1, self.N, 19))
 
@@ -122,6 +124,7 @@ class SchedEnv(gym.Env):
             "partition": init_partition,
             "ready_tasks": init_ready_tasks,
             "slices_t": init_slice_t,
+            "last_reconfig": 0
         }
         self.obs["action_mask"] = self._get_action_mask()
 
@@ -169,6 +172,7 @@ class SchedEnv(gym.Env):
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
+        self.obs["last_reconfig"] = 0
         # Esperar
         if action == 0:
             # Transitamos al primer slice que se libere
@@ -181,6 +185,7 @@ class SchedEnv(gym.Env):
             
         # Reconfigurar
         elif action <= 16:
+            self.obs["last_reconfig"] = 1
             # Fusión de acciones de reconfiguración
             if action == 11 or action == 12 or action == 13: 
                 slice_0, slice_1 = self.obs["slices_t"][0], self.obs["slices_t"][1]
