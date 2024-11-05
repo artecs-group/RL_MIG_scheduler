@@ -2,7 +2,7 @@ from sb3_contrib.ppo_mask import MaskablePPO
 import argparse
 import os
 import numpy as np
-os.chdir("./basic_agent_pending_tasks")
+os.chdir("./basic_agent_pro_reconfigs")
 from env import SchedEnv
 import re
 from render import Window

@@ -2,7 +2,7 @@ from sb3_contrib.ppo_mask import MaskablePPO
 import argparse
 import os
 import numpy as np
-os.chdir("./basic_agent_pending_tasks")
+os.chdir("./basic_agent_box_bs3_part_reduced")
 from env import SchedEnv
 import re
 from render import Window
@@ -62,9 +62,8 @@ if __name__ == "__main__":
     env = SchedEnv({"N": N, "M": M}, type_tasks=type_tasks)
     # mean_reward = evaluate(model, env, num_steps=10000)
     initial_obs, _ = env.reset()
-    mk_lb = makespan_lower_bound(env.tasks)
+    mk_lb = makespan_lower_bound(env.dic_cont_times)
 
     model = MaskablePPO.load(f"./trained_models/{args.filename}")
 
     window = Window(env, model_trained=model, lower_bound=mk_lb)
-
