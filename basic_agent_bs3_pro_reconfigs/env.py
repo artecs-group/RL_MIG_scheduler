@@ -84,13 +84,15 @@ class SchedEnv(gym.Env):
 
 
     def reset(self, seed = None, options = None):
-        init_partition = random.randint(1, 16) # Seleccionamos aleatoriamente la partición inicial
-        part_sizes = partition_map[init_partition]["sizes"]
-        init_slice_t = []
+        #init_partition = random.randint(1, 16) # Seleccionamos aleatoriamente la partición inicial
+        init_partition = 1
+        # part_sizes = partition_map[init_partition]["sizes"]
+        # init_slice_t = []
         
-        for instance_size in part_sizes:
-            init_instance_time = random.randint(0, self.M)
-            init_slice_t += [init_instance_time] * instance_size
+        # for instance_size in part_sizes:
+        #     init_instance_time = random.randint(0, self.M)
+        #     init_slice_t += [init_instance_time] * instance_size
+        init_slice_t = [0] * 7
 
         self.num_task_slices = partition_map[init_partition]["instances"].copy() # Lleva el número de tipo de tarea que hay ejecutando en cada slice
         

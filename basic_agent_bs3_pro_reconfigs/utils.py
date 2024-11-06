@@ -2,8 +2,8 @@ from collections import Counter
 from pprint import pprint
 import os
 import random
-if not os.getcwd().endswith("basic_agent_box_bs3_part_reduced"):
-    os.chdir("./basic_agent_box_bs3_part_reduced")
+if not os.getcwd().endswith("basic_agent_bs3_pro_reconfigs"):
+    os.chdir("./basic_agent_bs3_pro_reconfigs")
 from task_times import generate_tasks
 
 # Mapa de número de partición a sus instancias
@@ -154,9 +154,10 @@ def compute_makespan(init_state, actions):
             partition = val
         elif type == "assign":
             time, instance = val
+            min_time_next_task = max([slices_t[pos] for pos, slice_ins in enumerate(partition_map[partition]["instances"]) if slice_ins == instance]) + time
             for pos, slice_ins in enumerate(partition_map[partition]["instances"]):
                 if slice_ins == instance:
-                    slices_t[pos] += time
+                    slices_t[pos] = min_time_next_task
         elif type == "exchange":
             slice_0, slice_1 = slices_t[0], slices_t[1]
             slices_t[0], slices_t[1] = slices_t[2], slices_t[3]
