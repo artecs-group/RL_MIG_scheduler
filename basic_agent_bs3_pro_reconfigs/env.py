@@ -154,14 +154,17 @@ class SchedEnv(gym.Env):
                 times[instance_num] = self.obs["slices_t"][i]
             else:
                 if times[instance_num] != self.obs["slices_t"][i]:
+                    pprint(self.actions)
                     print(self.obs["partition"], self.obs["slices_t"])
                 assert times[instance_num] == self.obs["slices_t"][i] # Todos los slices de una misma instancia tienen que tener el mismo tiempo
     
 
     def step(self, action):
+        #pprint(self.obs)
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
+        
         self.obs["last_reconfig"] = 0
         # Esperar
         if action == 0:
@@ -176,21 +179,22 @@ class SchedEnv(gym.Env):
         # Reconfigurar
         elif action <= 16:
             self.obs["last_reconfig"] = 1
+            next_partition = int(action)
+            # Tiempo hasta la reconfiguración
+            elapse_time = max([slices_t[slice_pos] for slice_pos in range(7) if partition_map[next_partition]["slices"][slice_pos] != partition_map[current_partition]["slices"][slice_pos]], default=0)
+            # Dejamos pasar el tiempo para todos los slices
+            self.obs["slices_t"] = [max(slice_time-elapse_time, 0) for slice_time in slices_t]
             # Fusión de acciones de reconfiguración
-            if action == 11 or action == 12 or action == 13: 
+            if next_partition == 11 or next_partition == 12 or next_partition == 13: 
                 slice_0, slice_1 = self.obs["slices_t"][0], self.obs["slices_t"][1]
                 self.obs["slices_t"][0], self.obs["slices_t"][1] = self.obs["slices_t"][2], self.obs["slices_t"][3]
                 self.obs["slices_t"][2], self.obs["slices_t"][3] = slice_0, slice_1
-                action -= 3
+                next_partition -= 3
                 self.actions.append(("exchange", None))
-            # Tiempo hasta la reconfiguración
-            elapse_time = max([slices_t[slice_pos] for slice_pos in range(7) if partition_map[action]["slices"][slice_pos] != partition_map[current_partition]["slices"][slice_pos]], default=0)
-            # Dejamos pasar el tiempo para todos los slices
-            self.obs["slices_t"] = [max(slice_time-elapse_time, 0) for slice_time in slices_t]
             # Colocamos la nueva partición
-            self.obs["partition"] = int(action)
+            self.obs["partition"] = next_partition
             reward = -elapse_time-self.reconfig_time_scaled # Recompensa en propoción al tiempo de reconfiguración
-            self.actions.append(("reconfig", int(action)))
+            self.actions.append(("reconfig", next_partition))
         # Asignar tarea
         else:
             task = (action - 17) // 7
