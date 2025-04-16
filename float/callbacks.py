@@ -2,9 +2,6 @@ from stable_baselines3.common.callbacks import BaseCallback
 from env import SchedEnv
 from utils import partition_map, makespan_lower_bound, compute_makespan
 import csv
-
-
-
         
 
 class CustomCallback(BaseCallback):
@@ -39,4 +36,7 @@ class CustomCallback(BaseCallback):
 
     def _on_step(self):      
         self.calculate_ratio(self.N, self.M, self.model)
+        print(self.num_timesteps)
+        if self.num_timesteps % 10000000 == 0:
+            self.model.save(f"./trained_models/bs3_N={self.N}_M={self.M}_s={self.num_timesteps}_{self.type_tasks}")
         return True

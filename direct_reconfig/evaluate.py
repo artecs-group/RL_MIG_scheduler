@@ -2,7 +2,7 @@ from sb3_contrib.ppo_mask import MaskablePPO
 import argparse
 import os
 import numpy as np
-os.chdir("./basic_agent_bs3_pro_reconfigs")
+os.chdir("./direct_reconfig")
 from env import SchedEnv
 import re
 from render import Window

@@ -7,7 +7,7 @@ from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
 from stable_baselines3.common.callbacks import EveryNTimesteps
 import os
-os.chdir("./basic_agent_bs3_pro_reconfigs")
+os.chdir("./direct_reconfig")
 from env import SchedEnv
 from callbacks import CustomCallback
 
@@ -27,7 +27,7 @@ parser.add_argument(
     "--N", type=int, default=15, help="Max num ready tasks."
 )
 parser.add_argument(
-    "--M", type=int, default=35, help="Discretization size."
+    "--M", type=int, default=7, help="Discretization size."
 )
 
 parser.add_argument(

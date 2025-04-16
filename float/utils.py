@@ -2,8 +2,8 @@ from collections import Counter
 from pprint import pprint
 import os
 import random
-if not os.getcwd().endswith("basic_agent_box_bs3_part_reduced"):
-    os.chdir("./basic_agent_box_bs3_part_reduced")
+if not os.getcwd().endswith("float"):
+    os.chdir("./float")
 from task_times import generate_tasks
 
 # Mapa de número de partición a sus instancias
@@ -133,6 +133,21 @@ def get_ready_tasks(type_tasks, N):
             n_scale = _n_scale_padding(n_scale, instance_sizes, N_bad)
             ready_tasks_bad = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=0, times_range=[90,100])
             ready_tasks = ready_tasks_good + ready_tasks_bad
+        elif type_tasks == "mix_scaling_extreme": 
+            ready_tasks_good = get_ready_tasks(type_tasks="good_scaling", N = N // 2)
+            ready_tasks_bad = get_ready_tasks(type_tasks="bad_scaling", N = N // 2 if N % 2 == 0 else N // 2 + 1)
+            ready_tasks = ready_tasks_good + ready_tasks_bad
+        elif type_tasks == "mix_scaling_soft":
+            scale_percs = [0.2,0.2,0.2,0.2,0.2]
+            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+            n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
+        elif type_tasks == "wide_times":
+            scale_percs = [0.2,0.2,0.2,0.2,0.2]
+            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+            n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[1,100])
+            
         return ready_tasks
 
 

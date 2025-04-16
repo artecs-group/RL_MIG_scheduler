@@ -7,7 +7,7 @@ from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
 from stable_baselines3.common.callbacks import EveryNTimesteps
 import os
-os.chdir("./basic_agent_box_bs3_part_reduced")
+os.chdir("./float")
 from env import SchedEnv
 from callbacks import CustomCallback
 
@@ -21,7 +21,7 @@ def mask_fn(env):
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--num_steps", type=int, default=500000, help="Num steps."
+    "--num_steps", type=int, default=100000000, help="Num steps."
 )
 parser.add_argument(
     "--N", type=int, default=15, help="Max num ready tasks."
@@ -31,7 +31,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--type-tasks", type=str, default="mix_scaling", help="Type of tasks for training."
+    "--type_tasks", type=str, default="mix_scaling", help="Type of tasks for training."
 )
 
 
