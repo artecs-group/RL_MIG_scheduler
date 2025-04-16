@@ -1,7 +1,6 @@
 import random
 import numpy as np
 import pandas as pd
-import pickle
 
 def read_task_rodinia():
     df_1g = pd.read_csv("rodinia_times/1g_A100.csv")
@@ -74,43 +73,4 @@ def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_ran
     #pprint(times)
     return times, instance_sizes
 
-
-def create_dataset(workload):
-    instance_sizes = [1,2,3,4,7]
-    device = "A100"
-    dataset = []
-    for num_dataset in range(1000):
-        if workload == "good_scaling":
-            n_scale = [0, 0, 0, 50, 50]
-            perc_membound = 75
-            times_range = [90, 100]
-        elif workload == "bad_scaling":
-            n_scale = [50, 50, 0, 0, 0]
-            perc_membound = 25
-            times_range = [90, 100]
-        elif workload == "max_scaling_uniform":
-            n_scale = [20, 20, 20, 20, 20]
-            perc_membound = 50
-            times_range = [90, 100]
-        elif workload == "max_scaling_extreme":
-            n_scale = [45, 5, 0, 5, 45]
-            perc_membound = 50
-            times_range = [90, 100]
-        elif workload == "wide_times":
-            n_scale = [20, 20, 20, 20, 20]
-            perc_membound = 50
-            times_range = [1, 100]
-        else:
-            return      
-        
-        times, _ = generate_tasks(instance_sizes, n_scale, device, perc_membound, times_range)
-        dataset.append(times)
-        with open(f"dataset_{workload}.pkl", "wb") as f:
-            pickle.dump(dataset, f)
-
-
-
-if __name__ == "__main__":
-    workload = input("Dataset type")
-    create_dataset(workload)
 

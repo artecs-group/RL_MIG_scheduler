@@ -5,14 +5,14 @@ from matplotlib.widgets import Button
 import numpy as np
 from MIG_scheduler.algorithm import *
 from MIG_scheduler.plotting import draw_rects_tree
-from utils import partition_map, action_to_str, compute_makespan
+from utils import draw_solution, partition_map, action_to_str, compute_makespan
 import copy
 
 
 class Window:
     colors = plt.cm.tab20.colors
 
-    def __init__(self, initial_env, lower_bound = None, mem_size = 5, model_trained = None):
+    def __init__(self, initial_env, mem_size = 5, model_trained = None, lower_bound = None):
         self._heuristic_solve(initial_env)
         self.model_trained = model_trained
         self.lower_bound = lower_bound
@@ -117,17 +117,27 @@ class Window:
             else:
                 return 0
             
+    def _next_step_wide_times(self, env):
+        if env.predicted_actions:
+            next_action = env.predicted_actions[0]
+            env.predicted_actions.pop(0)
+        else:
+            print("Fin")
+            exit(1)
+        return next_action
+            
             
     def _heuristic_solve(self, env):
+        pprint(env.dic_cont_times)
         times = [time for list_times in env.dic_cont_times.values() for time in list_times]
         sizes = [1,2,3,4,7]
         times = [[(i, sizes[j], time) for j, time in enumerate(time_task)] for i, time_task in enumerate(times)]
+        print(times)
         allotmets_family = create_allotments_family(times, 7)
         lb_makespane_opt = lower_bound_makespan_opt(allotmets_family, 7)
-        tree, all_schedules = moldable_scheduler_tree(7, allotmets_family, "A100")
+        tree = moldable_scheduler_tree(7, allotmets_family, "A100")
         refinement(tree, "A100")
-        for schedule in all_schedules:
-            draw_rects_tree(7, schedule, lb_makespane_opt)
+        draw_rects_tree(7, tree, lb_makespane_opt)
         
     
 
@@ -138,6 +148,8 @@ class Window:
         env = copy.deepcopy(self.envs[-1])
         if env.type_tasks == "mix_scaling":
             action = self._next_step_mix_scaling()
+        elif env.type_tasks == "wide_times":
+            action = self._next_step_wide_times(env)
         elif self.model_trained:
             action, _ = self.model_trained.predict(env.get_numpy_obs_state(), action_masks=env.valid_action_mask())
         else:
@@ -168,10 +180,10 @@ class Window:
         title = (f"Initial state." if env.last_action is None else f"Last action: {action_to_str(env.last_action)}.") + f" Reward: {env.acum_reward:.2f}."
         title += f" Real time lower bound: {self.lower_bound:.2f}" if self.lower_bound else ""
         if self.terminated:
-            if self.lower_bound:
-                makespan = compute_makespan(env.init_state, env.actions)
-                ratio = makespan / self.lower_bound
-                title = f"Real lower bound: {self.lower_bound:.2f}.  Real Makespan: {makespan:.2f}. Ratio: {ratio:.2f}."
+            makespan = compute_makespan(env.init_state, env.actions)
+            draw_solution(env.init_state, env.actions, self.lower_bound, makespan, n_slices = 7)
+            ratio = makespan / self.lower_bound
+            title = f"Real lower bound: {self.lower_bound:.2f}.  Real Makespan: {makespan:.2f}. Ratio: {ratio:.2f}."
         
         self.fig.suptitle(title)
         slice_i = 0

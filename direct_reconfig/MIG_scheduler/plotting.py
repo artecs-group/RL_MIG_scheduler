@@ -65,7 +65,7 @@ def draw_rects(n_slices, scheduling_no_dynamic, scheduling_1s, scheduling_fifo_f
 
 
 def draw_rects_tree(n_slices, tree, lb_makespane_opt):
-    #plt.close()
+    plt.close()
     colors = plt.cm.tab20.colors
     fig, ax = plt.subplots()
     max_makespan = give_makespan_tree(tree)
@@ -80,6 +80,7 @@ def draw_rects_tree(n_slices, tree, lb_makespane_opt):
             # if instance.slices == tree.all_slices[:3]:
             #     instance.size = 4
             rect = patches.Rectangle((instance.slices[0].num_slice, task.start), instance.size, task.time, facecolor = colors[task.index % len(colors)], alpha = 0.55, linewidth = 1, edgecolor = 'black')
+            print((instance.slices[0].num_slice, task.start), instance.size, task.time)
             ax.add_patch(rect)
         for child in instance.children:
             cola.append(child)

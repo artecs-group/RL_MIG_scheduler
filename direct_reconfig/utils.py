@@ -2,9 +2,11 @@ from collections import Counter
 from pprint import pprint
 import os
 import random
-if not os.getcwd().endswith("basic_agent_bs3_optimized"):
-    os.chdir("./basic_agent_bs3_optimized")
+import matplotlib.pyplot as plt
+if not os.getcwd().endswith("direct_reconfig"):
+    os.chdir("./direct_reconfig")
 from task_times import generate_tasks
+import matplotlib.patches as patches
 
 # Mapa de número de partición a sus instancias
 partition_map = {
@@ -50,7 +52,7 @@ def canonical_sort_tasks(M, tasks):
     numbered_tasks = [(type_num_task(M, [time_d for _, time_d in task]), task) for task in tasks]
     dic_cont, dic_discrete = _num_task_to_times(numbered_tasks)
     # Ordeno por tipo de tarea
-    canonical_tasks = sorted(dic_discrete.items(), key=lambda x: x[0], reverse=True)
+    canonical_tasks = sorted(dic_discrete.items(), key=lambda x: x[0])
     # Añado como última componente de cada tipo la cantidad de veces que se repite
     canonical_tasks = [task + [len(dic_cont[type])] for type, task in canonical_tasks]     
     return canonical_tasks, dic_cont
@@ -133,6 +135,22 @@ def get_ready_tasks(type_tasks, N):
             n_scale = _n_scale_padding(n_scale, instance_sizes, N_bad)
             ready_tasks_bad = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=0, times_range=[90,100])
             ready_tasks = ready_tasks_good + ready_tasks_bad
+        elif type_tasks == "mix_scaling_extreme": 
+            ready_tasks_good = get_ready_tasks(type_tasks="good_scaling", N = N // 2)
+            ready_tasks_bad = get_ready_tasks(type_tasks="bad_scaling", N = N // 2 if N % 2 == 0 else N // 2 + 1)
+            ready_tasks = ready_tasks_good + ready_tasks_bad
+        elif type_tasks == "mix_scaling_soft":
+            scale_percs = [0.2,0.2,0.2,0.2,0.2]
+            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+            n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
+        elif type_tasks == "wide_times":
+            scale_percs = [0.2,0.2,0.2,0.2,0.2]
+            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+            n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[1,100])
+            print(ready_tasks)
+            
         return ready_tasks
 
 
@@ -148,7 +166,7 @@ def makespan_lower_bound(dic_cont_times):
 
 def compute_makespan(init_state, actions):
     partition = init_state["partition"]
-    slices_t = init_state["slices_t"]
+    slices_t = init_state["slices_t"].copy()
     for type, val in actions:
         if type == "reconfig":
             partition = val
@@ -161,5 +179,60 @@ def compute_makespan(init_state, actions):
             slice_0, slice_1 = slices_t[0], slices_t[1]
             slices_t[0], slices_t[1] = slices_t[2], slices_t[3]
             slices_t[2], slices_t[3] = slice_0, slice_1
+            
+    return max(slices_t)
+
+def _first_slice(partition, instance):
+    #First slice
+    for pos, slice_ins in enumerate(partition_map[partition]["instances"]):
+        if slice_ins == instance:
+            first_slice = pos
+            break
+    return first_slice
+
+def _instance_size(instance, partition):
+    size = 0
+    for pos, slice_ins in enumerate(partition_map[partition]["instances"]):
+        if slice_ins == instance:
+            size += 1
+    return size
+
+def _start_time(partition, instance, slices_t):
+    start_time = 0
+    for pos, slice_ins in enumerate(partition_map[partition]["instances"]):
+        if slice_ins == instance:
+            start_time = max(start_time, slices_t[pos])
+    return start_time
+
+def draw_solution(init_state, actions, lb_makespane_opt, real_makespan, n_slices = 7):
+    fig, ax = plt.subplots()
+    plt.xlim((-0.2, n_slices+0.2))
+    plt.ylim((0, real_makespan+0.5))
+    line = plt.axhline(y=lb_makespane_opt, color='red', label = "baseline", linewidth=2)
+    colors = plt.cm.tab20.colors
+
+    partition = init_state["partition"]
+    slices_t = init_state["slices_t"]
+    for type, val in actions:
+        if type == "reconfig":
+            partition = val
+        elif type == "assign":
+            time, instance = val
+            first_slice = _first_slice(partition, instance)
+            instance_size = _instance_size(instance, partition)
+            start_time = _start_time(partition, instance, slices_t)
+            rect = patches.Rectangle((first_slice, start_time), instance_size, time, facecolor = colors[0], alpha = 0.55, linewidth = 1, edgecolor = 'black')
+            ax.add_patch(rect)
+            for pos, slice_ins in enumerate(partition_map[partition]["instances"]):
+                if slice_ins == instance:
+                    slices_t[pos] += time
+                    
+            
+        elif type == "exchange": # Basis change
+            slice_0, slice_1 = slices_t[0], slices_t[1]
+            slices_t[0], slices_t[1] = slices_t[2], slices_t[3]
+            slices_t[2], slices_t[3] = slice_0, slice_1
+
+    plt.show()
             
     return max(slices_t)

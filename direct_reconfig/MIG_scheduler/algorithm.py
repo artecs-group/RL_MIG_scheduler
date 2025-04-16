@@ -188,17 +188,15 @@ def lower_bound_makespan_opt(allotmets_family, n_slices):
     return sum(slices*time for _, slices, time in allotment_0) / n_slices
 
 def moldable_scheduler_tree(n_slices, allotmets_family, device):
-    all_schedules = []
     scheduling = None
     best_makespan = float("inf")
     for allotment in allotmets_family:
         tree = tasks_scheduling_tree(n_slices, allotment, device)
-        all_schedules.append(tree)
         if (give_makespan_tree(tree) < best_makespan):
             best_makespan = give_makespan_tree(tree)
             scheduling = tree
     
-    return scheduling, all_schedules
+    return scheduling
 
 def instances_by_size(tree, map_instance_sizes):
     if tree.size not in map_instance_sizes:

@@ -2,20 +2,21 @@ from sb3_contrib.ppo_mask import MaskablePPO
 import argparse
 import os
 import numpy as np
+#os.chdir("./float")
 from env import SchedEnv
 import re
 from render import Window
+import pickle
 from pprint import pprint
 from utils import action_to_str, makespan_lower_bound
 from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--filename", type=str, help="Filename with the model to evaluate."
+    "--model_name", type=str, help="Filename with the model to evaluate."
 )
-
 parser.add_argument(
-    "--dataset", type=str, help="Filename with workloads to evaluate."
+    "--example_path", type=str, default = None, help="Example to evaluate with the model."
 )
 
 def evaluate(model, env, num_steps=1000):
@@ -54,7 +55,7 @@ def evaluate(model, env, num_steps=1000):
 if __name__ == "__main__":
     args = parser.parse_args()
     pattern = r"N=(\d+)_M=(\d+)_s=(\d+)_(.*).zip"
-    match = re.search(pattern, args.filename)
+    match = re.search(pattern, args.model_name)
 
     N = int(match.group(1))  # Primer grupo es N
     M = int(match.group(2))  # Segundo grupo es M
@@ -64,9 +65,16 @@ if __name__ == "__main__":
 
     env = SchedEnv({"N": N, "M": M}, type_tasks=type_tasks)
     # mean_reward = evaluate(model, env, num_steps=10000)
-    initial_obs, _ = env.reset(options=args.dataset)
+    if args.example_path == None:
+      initial_obs, _ = env.reset()
+    else:
+      with open(args.example_path, 'rb') as f:
+        times_list = pickle.load(f)
+      env.reset_example(times_list)
+  
     mk_lb = makespan_lower_bound(env.dic_cont_times)
+    model = MaskablePPO.load(f"./trained_models/{args.model_name}")
 
-    model = MaskablePPO.load(f"./trained_models/{args.filename}")
+    
 
-    window = Window(env, model_trained=model, lower_bound=mk_lb)
+    window = Window(env, model_trained=model, lower_bound = mk_lb)

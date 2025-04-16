@@ -2,7 +2,7 @@ from sb3_contrib.ppo_mask import MaskablePPO
 import argparse
 import os
 import numpy as np
-os.chdir("./basic_agent_box_bs3_part_reduced")
+#os.chdir("./basic_agent_box_bs3_part_reduced")
 from env import SchedEnv
 import re
 from render import Window

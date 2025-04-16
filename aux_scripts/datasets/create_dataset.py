@@ -1,49 +1,6 @@
 import random
 import numpy as np
-import pandas as pd
 import pickle
-
-def read_task_rodinia():
-    df_1g = pd.read_csv("rodinia_times/1g_A100.csv")
-    col_times = [col for col in df_1g.columns if col != 'prueba']
-    df_1g["mean"] = df_1g[col_times].mean(axis=1)
-    df_1g = df_1g[["prueba", "mean"]]
-
-    df_2g = pd.read_csv("rodinia_times/2g_A100.csv")
-    df_2g["mean"] = df_2g[col_times].mean(axis=1)
-    df_2g = df_2g[["prueba", "mean"]]
-
-    df_3g = pd.read_csv("rodinia_times/3g_A100.csv")
-    df_3g["mean"] = df_3g[col_times].mean(axis=1)
-    df_3g = df_3g[["prueba", "mean"]]
-
-    df_4g = pd.read_csv("rodinia_times/4g_A100.csv")
-    df_4g["mean"] = df_4g[col_times].mean(axis=1)
-    df_4g = df_4g[["prueba", "mean"]]
-
-    df_7g = pd.read_csv("rodinia_times/7g_A100.csv")
-    df_7g["mean"] = df_7g[col_times].mean(axis=1)
-    df_7g = df_7g[["prueba", "mean"]]
-
-    tiempos_prueba = lambda prueba_name: [list(df["mean"][df["prueba"] == prueba_name])[0] for df in [df_1g, df_2g, df_3g, df_4g, df_7g]]
-    times = [[(index, slice, time) for slice, time in zip([1,2,3,4,7], tiempos_prueba(prueba))] for index, prueba in enumerate(df_1g["prueba"])]
-    return times, list(df_1g["prueba"])
-
-
-def get_input_config():
-    repetitions = int(input("Repetitions: "))
-    available_devices = ["A30", "A100"]
-    while True:
-        device = input("Goal device (A30 or A100): ")
-        if device in available_devices:
-            break
-
-    instance_sizes = [1,2,4] if device == "A30" else [1,2,3,4,7] if device == "A100" else None
-    n_scale = {}
-    for size in instance_sizes:
-        n_scale[size] = int(input(f"Number scale until {size} slices: "))
-    perc_membound = float(input("Percentage memory bound (0-100%): "))
-    return repetitions, instance_sizes, n_scale, perc_membound, device
 
 def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_range=[1,100]):
     n_slices = instance_sizes[-1]
@@ -75,29 +32,29 @@ def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_ran
     return times, instance_sizes
 
 
-def create_dataset(workload):
+def create_dataset(workload, num_datasets):
     instance_sizes = [1,2,3,4,7]
     device = "A100"
     dataset = []
-    for num_dataset in range(1000):
+    for num_dataset in range(num_datasets):
         if workload == "good_scaling":
-            n_scale = [0, 0, 0, 50, 50]
+            n_scale = {1: 0, 2: 0, 3: 0, 4: 50, 7: 50}
             perc_membound = 75
             times_range = [90, 100]
         elif workload == "bad_scaling":
-            n_scale = [50, 50, 0, 0, 0]
+            n_scale = {1: 50, 2: 50, 3: 0, 4: 0, 7: 0}
             perc_membound = 25
             times_range = [90, 100]
-        elif workload == "max_scaling_uniform":
-            n_scale = [20, 20, 20, 20, 20]
+        elif workload == "mix_scaling_uniform":
+            n_scale = {1: 20, 2: 20, 3: 20, 4: 20, 7: 20}
             perc_membound = 50
             times_range = [90, 100]
-        elif workload == "max_scaling_extreme":
-            n_scale = [45, 5, 0, 5, 45]
+        elif workload == "mix_scaling_extreme":
+            n_scale = {1: 45, 2: 5, 3: 0, 4: 5, 7: 45}
             perc_membound = 50
             times_range = [90, 100]
         elif workload == "wide_times":
-            n_scale = [20, 20, 20, 20, 20]
+            n_scale = {1: 20, 2: 20, 3: 20, 4: 20, 7: 20}
             perc_membound = 50
             times_range = [1, 100]
         else:
@@ -105,12 +62,13 @@ def create_dataset(workload):
         
         times, _ = generate_tasks(instance_sizes, n_scale, device, perc_membound, times_range)
         dataset.append(times)
-        with open(f"dataset_{workload}.pkl", "wb") as f:
-            pickle.dump(dataset, f)
+        print(num_dataset)
+    with open(f"dataset_{workload}.pkl", "wb") as f:
+        pickle.dump(dataset, f)
 
 
 
 if __name__ == "__main__":
-    workload = input("Dataset type")
-    create_dataset(workload)
-
+    workload = input("Dataset type: ")
+    num_datasets =int(input("Num datasets: "))
+    create_dataset(workload, num_datasets)

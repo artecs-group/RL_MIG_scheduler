@@ -221,7 +221,7 @@ class Window:
 
         self.ax3.set_title("Posible actions")
         # Add text to ax3
-        self.ax3.text(0.5, 0.95, "Wait" if wait else "", ha='center', va='center', fontsize=12)
+        self.ax3.text(0.5, 0.95, "Advance" if wait else "", ha='center', va='center', fontsize=12)
 
         self.ax3.text(0, 0.9, "Reconfigs:", ha='left', va='center', fontsize=12)
         height = 0.85

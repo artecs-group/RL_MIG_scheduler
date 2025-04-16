@@ -1,7 +1,7 @@
+#from pprint import pprint
 import random
 import numpy as np
 import pandas as pd
-import pickle
 
 def read_task_rodinia():
     df_1g = pd.read_csv("rodinia_times/1g_A100.csv")
@@ -61,8 +61,8 @@ def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_ran
                     next_time = (size - 1 + np.clip(np.random.normal(0.75, 0.25), 0.5, 1)) / size * last_time
                 # Si sigue siendo memory bound y hemos escalado en memoria (de 3 a 4 slices no se escala en A100)
                 elif super_linear_grow and size != 4:
-                    next_time = (size - 1 + np.clip(np.random.normal(-0.25, 0.25), -0.3, 0)) / size * last_time
-                    if random.random() <= 0.1:
+                    next_time = (size - 1 + np.clip(np.random.normal(-0.3, 0.3), -0.5, 0)) / size * last_time
+                    if random.random() <= 0.025:
                         super_linear_grow = False
                 else:
                     next_time = (size - 1 + np.clip(np.random.normal(0.05, 0.05), 0, 0.1)) / size * last_time
@@ -70,47 +70,10 @@ def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_ran
                 times_instance_scale_size[i].append((size, next_time))
         times += times_instance_scale_size
     # Remove times of instance sizes not valid
-    times = [[(index, slices, time) for slices, time in task_times if slices in instance_sizes] for index, task_times in enumerate(times)]
-    #pprint(times)
-    return times, instance_sizes
+    times = [[time for slices, time in task_times if slices in instance_sizes] for task_times in times]
+    # # Aux for cheking agent selection
+    # for i in range(len(times)):
+    #     times[i][1] = times[i][0]
 
 
-def create_dataset(workload):
-    instance_sizes = [1,2,3,4,7]
-    device = "A100"
-    dataset = []
-    for num_dataset in range(1000):
-        if workload == "good_scaling":
-            n_scale = [0, 0, 0, 50, 50]
-            perc_membound = 75
-            times_range = [90, 100]
-        elif workload == "bad_scaling":
-            n_scale = [50, 50, 0, 0, 0]
-            perc_membound = 25
-            times_range = [90, 100]
-        elif workload == "max_scaling_uniform":
-            n_scale = [20, 20, 20, 20, 20]
-            perc_membound = 50
-            times_range = [90, 100]
-        elif workload == "max_scaling_extreme":
-            n_scale = [45, 5, 0, 5, 45]
-            perc_membound = 50
-            times_range = [90, 100]
-        elif workload == "wide_times":
-            n_scale = [20, 20, 20, 20, 20]
-            perc_membound = 50
-            times_range = [1, 100]
-        else:
-            return      
-        
-        times, _ = generate_tasks(instance_sizes, n_scale, device, perc_membound, times_range)
-        dataset.append(times)
-        with open(f"dataset_{workload}.pkl", "wb") as f:
-            pickle.dump(dataset, f)
-
-
-
-if __name__ == "__main__":
-    workload = input("Dataset type")
-    create_dataset(workload)
-
+    return times
