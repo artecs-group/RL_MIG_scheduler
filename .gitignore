@@ -10,3 +10,4 @@ venv_etna/
 *.pkl
 *.json
 *.csv
+*.zip
