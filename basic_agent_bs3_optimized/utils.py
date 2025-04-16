@@ -2,8 +2,8 @@ from collections import Counter
 from pprint import pprint
 import os
 import random
-if not os.getcwd().endswith("basic_agent_box_bs3_part_reduced"):
-    os.chdir("./basic_agent_box_bs3_part_reduced")
+if not os.getcwd().endswith("basic_agent_bs3_optimized"):
+    os.chdir("./basic_agent_bs3_optimized")
 from task_times import generate_tasks
 
 # Mapa de número de partición a sus instancias
@@ -50,7 +50,7 @@ def canonical_sort_tasks(M, tasks):
     numbered_tasks = [(type_num_task(M, [time_d for _, time_d in task]), task) for task in tasks]
     dic_cont, dic_discrete = _num_task_to_times(numbered_tasks)
     # Ordeno por tipo de tarea
-    canonical_tasks = sorted(dic_discrete.items(), key=lambda x: x[0])
+    canonical_tasks = sorted(dic_discrete.items(), key=lambda x: x[0], reverse=True)
     # Añado como última componente de cada tipo la cantidad de veces que se repite
     canonical_tasks = [task + [len(dic_cont[type])] for type, task in canonical_tasks]     
     return canonical_tasks, dic_cont
