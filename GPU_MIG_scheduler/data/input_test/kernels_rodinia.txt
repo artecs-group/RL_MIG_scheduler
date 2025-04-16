@@ -1,0 +1,9 @@
+particlefilter ../data/kernels/gpu-rodinia/cuda/particlefilter run
+nw ../data/kernels/gpu-rodinia/cuda/nw run
+lu ../data/kernels/gpu-rodinia/cuda/lud run
+lavaMD ../data/kernels/gpu-rodinia/cuda/lavaMD run
+huffman ../data/kernels/gpu-rodinia/cuda/huffman run
+hotspot ../data/kernels/gpu-rodinia/cuda/hotspot run
+heartwall ../data/kernels/gpu-rodinia/cuda/heartwall run
+gaussian ../data/kernels/gpu-rodinia/cuda/gaussian run
+pathfinder ../data/kernels/gpu-rodinia/cuda/pathfinder run

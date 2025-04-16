@@ -1,0 +1,56 @@
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 24.284000
+After LUD
+>>>Verify<<<<
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 14.947000
+After LUD
+>>>Verify<<<<
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 11.599000
+After LUD
+>>>Verify<<<<
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 23.764000
+After LUD
+>>>Verify<<<<
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 23.673000
+After LUD
+>>>Verify<<<<
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 14.727000
+After LUD
+>>>Verify<<<<
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 11.627000
+After LUD
+>>>Verify<<<<
+WG size of kernel = 16 X 16
+Generate input matrix internally, size =2048
+Creating matrix internally size=2048
+Before LUD
+Time consumed(ms): 23.555000
+After LUD
+>>>Verify<<<<

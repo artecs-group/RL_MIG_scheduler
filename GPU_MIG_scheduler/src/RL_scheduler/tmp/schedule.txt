@@ -1,0 +1,4 @@
+assign Task T2 0
+reconfig 16
+assign Task T1 3
+wait

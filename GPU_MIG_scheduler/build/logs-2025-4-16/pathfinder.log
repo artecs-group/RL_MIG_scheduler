@@ -1,0 +1,40 @@
+pyramidHeight: 20
+gridSize: [1000000]
+border:[20]
+blockSize: 256
+blockGrid:[4630]
+targetBlock:[216]
+pyramidHeight: 20
+gridSize: [1000000]
+border:[20]
+blockSize: 256
+blockGrid:[4630]
+targetBlock:[216]
+pyramidHeight: 20
+gridSize: [1000000]
+border:[20]
+blockSize: 256
+blockGrid:[4630]
+targetBlock:[216]
+INFO: End task gaussian at 22.933460s
+INFO: Start task nw at 22.933483s
+INFO: End task nw at 23.432959s
+pyramidHeight: 20
+gridSize: [1000000]
+border:[20]
+blockSize: 256
+blockGrid:[4630]
+targetBlock:[216]
+pyramidHeight: 20
+gridSize: [1000000]
+border:[20]
+blockSize: 256
+blockGrid:[4630]
+targetBlock:[216]
+pyramidHeight: 20
+gridSize: [1000000]
+border:[20]
+blockSize: 256
+blockGrid:[4630]
+targetBlock:[216]
+INFO: End task gaussian at 22.904084s

@@ -1,5 +1,6 @@
 python_env/
 venv_etna/
+env_scheduler/
 */__pycache__/*
 */.pytest_cache/*
 */.vscode/*
