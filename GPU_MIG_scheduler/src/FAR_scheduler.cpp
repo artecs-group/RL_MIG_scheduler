@@ -512,7 +512,7 @@ static void update_times_tree(shared_ptr<TreeNode>& root){
     }
 }
 
-void perform_scheduling(vector<Task> & tasks, nvmlDevice_t device){
+void perform_FAR_schedule(vector<Task> & tasks, nvmlDevice_t device){
     // Get the allocations family
     TreeNode tree_schedule = FAR_schedule_tasks(tasks);
 

@@ -1,0 +1,828 @@
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	2.509459 sec
+Time for CUDA kernels:	2.419124 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	19.288043 sec
+Time for CUDA kernels:	19.171261 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	1.345522 sec
+Time for CUDA kernels:	1.238702 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	9.728117 sec
+Time for CUDA kernels:	9.591407 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	0.782909 sec
+Time for CUDA kernels:	0.644673 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	5.067652 sec
+Time for CUDA kernels:	4.908364 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	2.509266 sec
+Time for CUDA kernels:	2.418855 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	19.286995 sec
+Time for CUDA kernels:	19.170721 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	1.348625 sec
+Time for CUDA kernels:	1.238491 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	9.724067 sec
+Time for CUDA kernels:	9.592235 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	0.787818 sec
+Time for CUDA kernels:	0.644865 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	5.069479 sec
+Time for CUDA kernels:	4.908035 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	2.508501 sec
+Time for CUDA kernels:	2.418792 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	19.287742 sec
+Time for CUDA kernels:	19.171817 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	1.349536 sec
+Time for CUDA kernels:	1.238642 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	9.729173 sec
+Time for CUDA kernels:	9.592417 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	0.782769 sec
+Time for CUDA kernels:	0.644933 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	5.069934 sec
+Time for CUDA kernels:	4.908597 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	2.514724 sec
+Time for CUDA kernels:	2.420055 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	19.290745 sec
+Time for CUDA kernels:	19.172159 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	1.350435 sec
+Time for CUDA kernels:	1.238768 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	9.730003 sec
+Time for CUDA kernels:	9.592337 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	0.784613 sec
+Time for CUDA kernels:	0.645989 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	5.072903 sec
+Time for CUDA kernels:	4.910098 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	2.510839 sec
+Time for CUDA kernels:	2.420034 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	19.294156 sec
+Time for CUDA kernels:	19.173694 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	1.349142 sec
+Time for CUDA kernels:	1.239494 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	9.747675 sec
+Time for CUDA kernels:	9.593578 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	0.784356 sec
+Time for CUDA kernels:	0.645660 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	5.069828 sec
+Time for CUDA kernels:	4.910747 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	2.529826 sec
+Time for CUDA kernels:	2.438576 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 1g.6gb 
+**************************************
+Total Global Memory			 - 6094848 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 14
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	19.318116 sec
+Time for CUDA kernels:	19.193943 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	1.366021 sec
+Time for CUDA kernels:	1.257589 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 2g.12gb 
+**************************************
+Total Global Memory			 - 12255232 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 28
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	9.749773 sec
+Time for CUDA kernels:	9.611945 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 2048 
+
+Time total (including memory transfers)	0.805775 sec
+Time for CUDA kernels:	0.664986 sec
+WG size of kernel 1 = 512, WG size of kernel 2= 4 X 4
+Total Device found: 1
+Device Name 		 - NVIDIA A30 MIG 4g.24gb 
+**************************************
+Total Global Memory			 - 24638656 KB
+Shared memory available per block 	 - 48 KB
+Number of registers per thread block 	 - 65536
+Warp size in threads 			 - 32
+Memory Pitch 				 - 2147483647 bytes
+Maximum threads per block 		 - 1024
+Maximum Thread Dimension (block) 	 - 1024 1024 64
+Maximum Thread Dimension (grid) 	 - 2147483647 65535 65535
+Total constant memory 			 - 65536 bytes
+CUDA ver 				 - 8.0
+Clock rate 				 - 1440000 KHz
+Texture Alignment 			 - 512 bytes
+Device Overlap 				 - Allowed
+Number of Multi processors 		 - 56
+
+Create matrix internally in parse, size = 4096 
+
+Time total (including memory transfers)	5.092149 sec
+Time for CUDA kernels:	4.929115 sec

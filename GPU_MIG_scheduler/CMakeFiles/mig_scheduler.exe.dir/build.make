@@ -111,10 +111,24 @@ CMakeFiles/mig_scheduler.exe.dir/src/MIG_manager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mig_scheduler.exe.dir/src/MIG_manager.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/src/MIG_manager.cpp -o CMakeFiles/mig_scheduler.exe.dir/src/MIG_manager.cpp.s
 
+CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o: CMakeFiles/mig_scheduler.exe.dir/flags.make
+CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o: src/RL_scheduler.cpp
+CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o: CMakeFiles/mig_scheduler.exe.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o -MF CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o.d -o CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o -c /home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/src/RL_scheduler.cpp
+
+CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/src/RL_scheduler.cpp > CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.i
+
+CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/src/RL_scheduler.cpp -o CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.s
+
 CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o: CMakeFiles/mig_scheduler.exe.dir/flags.make
 CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o: src/main.cpp
 CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o: CMakeFiles/mig_scheduler.exe.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o -MF CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o.d -o CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o -c /home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/src/main.cpp
 
 CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.i: cmake_force
@@ -128,7 +142,7 @@ CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.s: cmake_force
 CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o: CMakeFiles/mig_scheduler.exe.dir/flags.make
 CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o: src/tasks.cpp
 CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o: CMakeFiles/mig_scheduler.exe.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o -MF CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o.d -o CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o -c /home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/src/tasks.cpp
 
 CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.i: cmake_force
@@ -142,7 +156,7 @@ CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.s: cmake_force
 CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o: CMakeFiles/mig_scheduler.exe.dir/flags.make
 CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o: src/utils.cpp
 CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o: CMakeFiles/mig_scheduler.exe.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o -MF CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o.d -o CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o -c /home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/src/utils.cpp
 
 CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.i: cmake_force
@@ -158,6 +172,7 @@ mig_scheduler_exe_OBJECTS = \
 "CMakeFiles/mig_scheduler.exe.dir/src/FAR_scheduler.cpp.o" \
 "CMakeFiles/mig_scheduler.exe.dir/src/GPU_info.cpp.o" \
 "CMakeFiles/mig_scheduler.exe.dir/src/MIG_manager.cpp.o" \
+"CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o" \
 "CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o" \
 "CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o" \
 "CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o"
@@ -168,6 +183,7 @@ mig_scheduler_exe_EXTERNAL_OBJECTS =
 mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/src/FAR_scheduler.cpp.o
 mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/src/GPU_info.cpp.o
 mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/src/MIG_manager.cpp.o
+mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/src/RL_scheduler.cpp.o
 mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/src/main.cpp.o
 mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/src/tasks.cpp.o
 mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/src/utils.cpp.o
@@ -175,7 +191,7 @@ mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/build.make
 mig_scheduler.exe: /usr/local/cuda/lib64/libcudart_static.a
 mig_scheduler.exe: /usr/lib/x86_64-linux-gnu/librt.a
 mig_scheduler.exe: CMakeFiles/mig_scheduler.exe.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable mig_scheduler.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/jorvil01/RL_MIG_scheduler/GPU_MIG_scheduler/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable mig_scheduler.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mig_scheduler.exe.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

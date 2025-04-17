@@ -35,6 +35,6 @@ struct TreeNode{
 
 TreeNode FAR_schedule_tasks(vector<Task> & tasks); // FAR's algorithm
 
-void perform_scheduling(vector<Task> & tasks, nvmlDevice_t device); // Perform the scheduling of the tasks
+void perform_FAR_schedule(vector<Task> & tasks, nvmlDevice_t device); // Perform the scheduling of the tasks
 
 #endif // FAR_SCHEDULER_H

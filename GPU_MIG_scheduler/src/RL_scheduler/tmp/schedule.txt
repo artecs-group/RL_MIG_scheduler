@@ -1,4 +1,11 @@
-assign Task T2 0
+assign particlefilter 0
 reconfig 16
-assign Task T1 3
+assign nw 5
+assign lu 6
+assign huffman 3
+assign heartwall 0
+assign gaussian 1
+assign pathfinder 2
+assign lavaMD 4
+wait
 wait

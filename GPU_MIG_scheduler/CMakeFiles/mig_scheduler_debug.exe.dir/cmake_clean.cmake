@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/mig_scheduler_debug.exe.dir/src/GPU_info.cpp.o.d"
   "CMakeFiles/mig_scheduler_debug.exe.dir/src/MIG_manager.cpp.o"
   "CMakeFiles/mig_scheduler_debug.exe.dir/src/MIG_manager.cpp.o.d"
+  "CMakeFiles/mig_scheduler_debug.exe.dir/src/RL_scheduler.cpp.o"
+  "CMakeFiles/mig_scheduler_debug.exe.dir/src/RL_scheduler.cpp.o.d"
   "CMakeFiles/mig_scheduler_debug.exe.dir/src/main.cpp.o"
   "CMakeFiles/mig_scheduler_debug.exe.dir/src/main.cpp.o.d"
   "CMakeFiles/mig_scheduler_debug.exe.dir/src/tasks.cpp.o"

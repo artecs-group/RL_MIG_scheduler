@@ -3,15 +3,17 @@
 #include "utils.h"
 #include "logging.h"
 #include "FAR_scheduler.h"
+#include "RL_scheduler.h"
 using namespace std;
 
 int main(int argc, char* argv[]){
-     if (argc != 3){
-          cerr << "Usage: " << argv[0] << " <gpu_number> <path to kernels filelist>" << endl;
+     if (argc < 3){
+          cerr << "Usage: " << argv[0] << " <gpu_number> <path to kernels filelist> <(optional): RL model path>" << endl;
           return 1;
      }
      int gpu_number = atoi(argv[1]);
      string kernels_filename = argv[2];
+
 
      DEBUG_PAUSE("Start scheduler initialization."); // Pause in debug mode with info
 
@@ -45,11 +47,17 @@ int main(int argc, char* argv[]){
 
      // Profile tasks to get their execution times for each instance size
      profile_tasks(tasks, device);
-
-     DEBUG_PAUSE("Start FAR algorithm scheduling."); // Pause in debug mode with info
-
-     // Perform the scheduling of the tasks
-     perform_scheduling(tasks, device);
+   
+     if (argc >= 4){
+          DEBUG_PAUSE("Start RL scheduling."); // Pause in debug mode with info
+          // Perform scheduling with the RL model
+          string model_path = argv[3];
+          perform_RL_schedule(model_path, tasks);
+     } else {
+          DEBUG_PAUSE("Start FAR algorithm scheduling."); // Pause in debug mode with info
+          // Perform scheduling with the FAR algorithm
+          perform_FAR_schedule(tasks, device);
+     };
 
      //Disable MIG
      MIG_disable(device, gpu_number);
