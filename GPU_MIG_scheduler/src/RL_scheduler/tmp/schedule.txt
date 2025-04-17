@@ -1,11 +1,11 @@
 assign particlefilter 0
-reconfig 16
-assign nw 5
-assign lu 6
-assign huffman 3
-assign heartwall 0
+reconfig 1-1-1-1
+assign nw 1
+assign lu 1
+assign huffman 1
+assign heartwall 1
 assign gaussian 1
-assign pathfinder 2
-assign lavaMD 4
+assign pathfinder 1
+assign lavaMD 1
 wait
 wait

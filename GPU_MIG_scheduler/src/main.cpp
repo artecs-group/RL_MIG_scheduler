@@ -46,13 +46,13 @@ int main(int argc, char* argv[]){
      DEBUG_PAUSE("Start task profiling."); // Pause in debug mode with info
 
      // Profile tasks to get their execution times for each instance size
-     profile_tasks(tasks, device);
+     //profile_tasks(tasks, device);
    
      if (argc >= 4){
           DEBUG_PAUSE("Start RL scheduling."); // Pause in debug mode with info
           // Perform scheduling with the RL model
           string model_path = argv[3];
-          perform_RL_schedule(model_path, tasks);
+          perform_RL_schedule(model_path, tasks, device);
      } else {
           DEBUG_PAUSE("Start FAR algorithm scheduling."); // Pause in debug mode with info
           // Perform scheduling with the FAR algorithm
