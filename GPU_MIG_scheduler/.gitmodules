@@ -1,3 +1,0 @@
-[submodule "GPU_MIG_scheduler/data/kernels/gpu-rodinia"]
-	path = GPU_MIG_scheduler/data/kernels/gpu-rodinia
-	url = https://github.com/yuhc/gpu-rodinia.git

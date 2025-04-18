@@ -1,0 +1,20 @@
+WG size of kernel = 16 
+Start Needleman-Wunsch
+Processing top-left matrix
+Processing bottom-right matrix
+INFO: End task lu at 9.280568s
+INFO: Start task heartwall at 9.281188s
+INFO: Start task gaussian at 9.281260s
+INFO: End task heartwall at 10.389977s
+INFO: Start task pathfinder at 10.390063s
+INFO: End task pathfinder at 29.440550s
+WG size of kernel = 16 
+Start Needleman-Wunsch
+Processing top-left matrix
+Processing bottom-right matrix
+INFO: End task lu at 8.943233s
+INFO: Start task heartwall at 8.943331s
+INFO: Start task gaussian at 8.943599s
+INFO: End task heartwall at 10.046172s
+INFO: Start task pathfinder at 10.046259s
+INFO: End task pathfinder at 28.061923s

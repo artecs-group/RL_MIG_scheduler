@@ -12,6 +12,8 @@
 #include <condition_variable>
 #include <unordered_map>
 #include <unordered_set>
+#include <algorithm>
+#include <sys/time.h>
 
 // 2 possible kinds of actions
 struct Reconfig{
@@ -19,7 +21,7 @@ struct Reconfig{
     vector<unsigned int> slices_needed; // Slices needed for reconfiguration
 };
 struct Execute{
-    string task_name; // Name of the task to execute
+    shared_ptr<Task> task; // Name of the task to execute
     unsigned int num_instance; // Number of the instance to execute the task
     unsigned int first_slice; // Fisrt slice of the instance
     unsigned int instance_size; // Instance size
@@ -39,7 +41,7 @@ vector<Action> schedule_tasks(string const& model_path, vector<Task> const& task
 
 
 static void write_taskfile(string const& taskfile_path, vector<Task> const& tasks);
-static vector<Action> parse_outputfile(string const& output_file);
+static vector<Action> parse_outputfile(string const& output_file, vector<Task> const& tasks);
 static void execute_inference(string const& model_path, string const& taskfile_path);
 static void show_actions(vector<Action> const& actions);
 static void execute_actions(vector<Action> const& actions, nvmlDevice_t device);
@@ -84,7 +86,7 @@ static vector<unsigned int> get_instance_sizes(ifstream & output){
     return instance_sizes;
 }
 
-static vector<Action> parse_outputfile(string const& output_file){
+static vector<Action> parse_outputfile(string const& output_file, vector<Task> const& tasks){
     // Open the output file for reading
     ifstream output(output_file);
     if (!output.is_open()) {
@@ -102,7 +104,11 @@ static vector<Action> parse_outputfile(string const& output_file){
             string task_name;
             unsigned int num_instance;
             output >> task_name >> num_instance;
-            actions.push_back(Execute{task_name, num_instance});
+            // Find the task in the tasks vector
+            auto it = find_if(tasks.begin(), tasks.end(), [&task_name](Task const& task) {
+                return task.name == task_name;
+            });
+            actions.push_back(Execute{make_shared<Task>(*it), num_instance});
         }
         output >> type_action;
     }
@@ -149,7 +155,7 @@ static void show_actions(vector<Action> const& actions){
             LOG_INFO(reconfigure_to_string(reconfig));
         } else if (holds_alternative<Execute>(action)){
             auto execute = get<Execute>(action);
-            LOG_INFO("Execute task " + execute.task_name + " on instance " + to_string(execute.num_instance));
+            LOG_INFO("Execute task " + execute.task->name + " on instance " + to_string(execute.num_instance));
         }
     }
     cout << "\n\n";
@@ -165,7 +171,7 @@ vector<Action> schedule_tasks(string const& model_path, vector<Task> const& task
     // execute_inference(model_path, taskfile_path);
     // Output file
     string output_file = "../src/RL_scheduler/tmp/schedule.txt";
-    vector<Action> actions = parse_outputfile(output_file);
+    vector<Action> actions = parse_outputfile(output_file, tasks);
     // Show the actions
     show_actions(actions);
     return actions;
@@ -227,6 +233,12 @@ static void acquire_resources(Action const& action){
 }
 
 static void perform_action(Action const& action, nvmlDevice_t device){
+    // Initialize the time only once at the first call
+    static struct timeval init_time = {0, 0};
+    if (init_time.tv_sec == 0 && init_time.tv_usec == 0){
+        gettimeofday(&init_time, NULL);
+    }
+
     if (holds_alternative<Reconfig>(action)){
         auto reconfig = get<Reconfig>(action);
         LOG_INFO(reconfigure_to_string(reconfig));
@@ -254,7 +266,17 @@ static void perform_action(Action const& action, nvmlDevice_t device){
     }
     else if (holds_alternative<Execute>(action)){
         auto execute = get<Execute>(action);
-        cout << "Executing task " << execute.task_name << " starting at " << execute.first_slice << " with size " << execute.instance_size << endl;
+        struct timeval curr_time;
+        shared_ptr<Task> task = execute.task;
+        // Get the instance to execute the task
+        auto instance = instances[execute.first_slice];
+        gettimeofday(&curr_time, NULL);
+        double curr_time_s = (curr_time.tv_sec - init_time.tv_sec) + (curr_time.tv_usec - init_time.tv_usec) / 1000000.0;
+        LOG_INFO("Start task " + task->name + " at " + to_string(curr_time_s) + "s");
+        task->execute(*instance);
+        gettimeofday(&curr_time, NULL);
+        curr_time_s = (curr_time.tv_sec - init_time.tv_sec) + (curr_time.tv_usec - init_time.tv_usec) / 1000000.0;
+        LOG_INFO("End task " + task->name + " at " + to_string(curr_time_s) + "s");
     }
 }
 

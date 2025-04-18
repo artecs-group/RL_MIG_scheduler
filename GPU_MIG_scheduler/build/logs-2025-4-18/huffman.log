@@ -1,0 +1,28 @@
+CUDA initialized.
+CUDA! Starting VLC Tests!
+Parameters: num_elements: 262144, num_blocks: 1024, num_block_threads: 256
+----------------------------
+Time to generate:  0.9 ms
+
+../../data/huffman/test1024_H2.206587175259.in, 1048576 bytes, entropy 2.206587
+
+CPU Encoding time (CPU): 11.997000 (ms)
+CPU Encoded to 291334 [B]
+GPU Encoding time (SM64HUFF): 0.438102 (ms)
+Num_blocks to be passed to scan is 1024.
+Comparing vectors: 
+PASS! vectors are matching!
+CUDA initialized.
+CUDA! Starting VLC Tests!
+Parameters: num_elements: 262144, num_blocks: 1024, num_block_threads: 256
+----------------------------
+Time to generate:  0.9 ms
+
+../../data/huffman/test1024_H2.206587175259.in, 1048576 bytes, entropy 2.206587
+
+CPU Encoding time (CPU): 12.058000 (ms)
+CPU Encoded to 291334 [B]
+GPU Encoding time (SM64HUFF): 0.437693 (ms)
+Num_blocks to be passed to scan is 1024.
+Comparing vectors: 
+PASS! vectors are matching!
