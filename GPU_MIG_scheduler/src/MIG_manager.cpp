@@ -180,7 +180,7 @@ static string get_instance_uuid(nvmlDevice_t device, nvmlGpuInstance_t gpuInstan
 
 Instance create_instance(nvmlDevice_t device, size_t start, size_t size){
     nvmlReturn_t result;
-    
+    cout << "INFO: Creating instance in slices " << start << " with size " << size << endl;
     // Create GPU instance
     nvmlGpuInstance_t gpuInstance;
     nvmlGpuInstancePlacement_t placement;
@@ -205,11 +205,10 @@ Instance create_instance(nvmlDevice_t device, size_t start, size_t size){
     // Get compute instance profile
     nvmlComputeInstanceProfileInfo_t ci_info;
     
-    result = nvmlGpuInstanceGetComputeInstanceProfileInfo (gpuInstance, global_GPU_info->valid_ci_profiles.at(placement.size), NVML_COMPUTE_INSTANCE_ENGINE_PROFILE_SHARED, &ci_info );
-    if(NVML_SUCCESS != result){
-            LOG_ERROR("Failed getting compute instance ID: " + string(nvmlErrorString(result)));
-            exit(1);
-    }
+    do{
+        result = nvmlGpuInstanceGetComputeInstanceProfileInfo (gpuInstance, global_GPU_info->valid_ci_profiles.at(placement.size), NVML_COMPUTE_INSTANCE_ENGINE_PROFILE_SHARED, &ci_info );
+        if(NVML_SUCCESS != result) LOG_ERROR("Failed getting compute instance ID: " + string(nvmlErrorString(result)));
+    } while(NVML_SUCCESS != result);
 
     // Create compute instance
     nvmlComputeInstance_t computeInstance;

@@ -11,6 +11,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <unordered_map>
+#include <unordered_set>
 
 // 2 possible kinds of actions
 struct Reconfig{
@@ -73,6 +74,16 @@ static void write_taskfile(string const& taskfile_path, vector<Task> const& task
     taskfile.close();
 }
 
+static vector<unsigned int> get_instance_sizes(ifstream & output){
+    vector<unsigned int> instance_sizes;
+    for (int i = 0; i < global_GPU_info->num_slices; i++){
+        unsigned int size;
+        output >> size;
+        instance_sizes.push_back(size);
+    }
+    return instance_sizes;
+}
+
 static vector<Action> parse_outputfile(string const& output_file){
     // Open the output file for reading
     ifstream output(output_file);
@@ -85,9 +96,7 @@ static vector<Action> parse_outputfile(string const& output_file){
     output >> type_action;
     while (output) {
         if (type_action == "reconfig") {
-            vector<unsigned int> instance_sizes = {1,1,1,1};
-            unsigned int size;
-            output >> size;
+            vector<unsigned int> instance_sizes = get_instance_sizes(output); // Read new configuration
             actions.push_back(Reconfig{instance_sizes});
         } else if (type_action == "assign") {
             string task_name;
@@ -122,20 +131,25 @@ static void execute_inference(string const& model_path, string const& taskfile_p
     }
 }
 
+static string reconfigure_to_string(Reconfig const& reconfig){
+    string reconfig_str = "Reconfigure to: ";
+    for (auto size: reconfig.instance_sizes){
+        reconfig_str += to_string(size) + ' ';
+    }
+    return reconfig_str;
+}
+
+
 static void show_actions(vector<Action> const& actions){
 
-    LOG_INFO ("\n\nScheduling plan generated:");
+    cout << "\n\nScheduling plan generated:\n";
     for (Action const& action: actions){
         if (holds_alternative<Reconfig>(action)){
             auto reconfig = get<Reconfig>(action);
-            cout << "Reconfigure to: ";
-            for (auto size: reconfig.instance_sizes){
-                cout << size << ' ';
-            }
-            cout << endl;
+            LOG_INFO(reconfigure_to_string(reconfig));
         } else if (holds_alternative<Execute>(action)){
             auto execute = get<Execute>(action);
-            cout << "Execute task " << execute.task_name << " on instance " << execute.num_instance << endl;
+            LOG_INFO("Execute task " + execute.task_name + " on instance " + to_string(execute.num_instance));
         }
     }
     cout << "\n\n";
@@ -173,11 +187,6 @@ static void compute_resources(Action & action){
         else if (holds_alternative<Execute>(action)){
             auto& execute = get<Execute>(action);
             int first_slice = 0;
-            cout << "Current config: ";
-            for (int i = 0; i < global_GPU_info->num_slices; i++){
-                cout << current_config[i] << ' ';
-            }
-            cout << endl;
             for (int i = 0; i < execute.num_instance; i++){
                 first_slice += current_config[i];
             }
@@ -186,7 +195,6 @@ static void compute_resources(Action & action){
             // Need free to execute the task
             for (int i = 0; i < execute.instance_size; i++){
                 execute.slices_needed.push_back(first_slice + i);
-                cout << execute.task_name << ' ' << i << '\n';
             }
         }
     }
@@ -215,34 +223,28 @@ static void acquire_resources(Action const& action){
         for (int slice_need: slices){
             slices_free[slice_need] = false;
         }
-        cout << "Estado slices: ";
-        for (int i = 0; i < global_GPU_info->num_slices; i++){
-            if (slices_free[i]){
-                cout << "L ";
-            } else {
-                cout << "O ";
-            }
-        }
-        cout << endl;
     }
 }
 
 static void perform_action(Action const& action, nvmlDevice_t device){
     if (holds_alternative<Reconfig>(action)){
         auto reconfig = get<Reconfig>(action);
-
+        LOG_INFO(reconfigure_to_string(reconfig));
         // Destroy previous instances in the modified slices
+        unordered_set<shared_ptr<Instance>> instances_to_destroy;
         for (int slice: reconfig.slices_needed){
-            if(instances[slice] != nullptr){
-                cout << "Destroying instance " << instances[slice]->uuid << endl;
-                //destroy_instance(*instances[slice]);
-            }
+            instances_to_destroy.insert(instances[slice]);
+            instances[slice] = nullptr;
+        }
+        for (auto instance: instances_to_destroy){
+            // Destroy the instance
+            destroy_instance(*instance);
+            LOG_INFO("Destroyed instance " + to_string(instance->start) + " with size " + to_string(instance->size));
         }
         // Create new instances in the modified slices
         for (int slice = 0; slice < global_GPU_info->num_slices; slice++){
             if (instances[slice] == nullptr){
                 // Create the instance with the new size
-                cout << "Creating instance " << slice << " with size " << reconfig.instance_sizes[slice] << endl;
                 Instance new_instance = create_instance(device, slice, reconfig.instance_sizes[slice]);
                 for (int i = 0; i < reconfig.instance_sizes[slice]; i++){
                     instances[slice + i] = make_shared<Instance>(new_instance);
@@ -281,17 +283,24 @@ static void execute_actions(vector<Action> & actions, nvmlDevice_t device){
     slices_free = vector<bool>(global_GPU_info->num_slices, true);
     current_config = vector<unsigned int>(global_GPU_info->num_slices, global_GPU_info->num_slices); // In A100, size 7 times 7
 
+    vector<thread> threads;
     for (Action & action: actions){
         compute_resources(action);
         acquire_resources(action);
         // Execute the action in a different thread
-        thread([action = move(action), device](){
+        threads.emplace_back([action = move(action), device](){
             // Perform the action
             perform_action(action, device);           
             // Release the resources
             release_resources(action);
-        }).detach();
+        });
     }
+
+    // Wait for all threads to finish
+    for (auto & thread: threads){
+        thread.join();
+    }
+    LOG_INFO("All actions executed\n");
 }
 
 void perform_RL_schedule(string const& model_path, vector<Task> const& tasks, nvmlDevice_t device){
