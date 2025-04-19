@@ -15,8 +15,9 @@ class SchedEnv(gym.Env):
         self.M = env_config["M"]
         self.type_tasks = type_tasks
         self.reconfig_time = 0.7
+        # Float representation of the task times
         self.observation_space = Box(low=0, high=1, shape=(1 + 6 * self.N + 7,))
-        self.action_space = Discrete(1 + 16 + 7 * self.N) # 1 accion esperar, 13 acciones de configuración (3 eliminadas, y 3 fusionadas en el step), y 7*N acciones de asignar tarea
+        self.action_space = Discrete(1 + 16 + 7 * self.N)
 
 
     def _get_action_mask(self):
@@ -247,16 +248,6 @@ class SchedEnv(gym.Env):
     def close(*args, **kwargs):
         pass
 
-    # def deepcopy(self):
-    #     sched = SchedEnv({"N": self.N, "M": self.M})
-    #     sched.obs = copy.deepcopy(self.obs)
-    #     sched.acum_reward = self.acum_reward
-    #     sched.last_action = self.last_action
-    #     sched.num_task_slices = self.num_task_slices
-    #     sched.num_type_task = self.num_type_task
-    #     return sched
-
-
 
 if __name__ == "__main__":
     env_example = SchedEnv({"N": 15, "M": 35}, type_tasks="good_scaling")
@@ -264,10 +255,3 @@ if __name__ == "__main__":
     initial_obs, _ = env_example.reset()
     print("initial obs:", initial_obs)
     window = Window(env_example)
-
-# terminated = False
-# while not terminated:
-    
-#     input("Press enter to next step...")
-#     action = np.random.choice(np.flatnonzero(env_example.obs["action_mask"]))
-#     _, _, terminated, _, _= env_example.step(action)
