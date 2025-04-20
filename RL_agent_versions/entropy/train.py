@@ -44,7 +44,6 @@ if __name__ == "__main__":
     # Network architecture
     net_arch = dict(pi=[256, 256], vf=[256, 256])
 
-    
     # PPO hyperparameters with action masking
     if args.restore:
         print("Loading pre-trained model...")
@@ -54,7 +53,7 @@ if __name__ == "__main__":
         print("No pre-trained model found. Initializing a new model...")
         model = MaskablePPO(MaskableActorCriticPolicy, ent_coef=0.01, env=env, verbose=2, device=args.device, gamma=1)
         restored_num_timesteps = 0
-    
+        
     observation_space = env.observation_space
     action_space = env.action_space
     lr_schedule = lambda _: 0.0003

@@ -19,19 +19,23 @@ class SchedEnv(gym.Env):
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
-        last_reconfig = self.obs["last_reconfig"]
 
         # The wait action is only valid if there are tasks on the GPU
         wait = 1 if any(slice_t != 0 for slice_t in slices_t) else 0
 
         # Valid reconfigurations
-        reconfig_mask = [1] * 16
-        # If there are no ready tasks, it doesn't make sense to reconfigure the GPU
-        if ready_tasks[0][-1] == 0 or last_reconfig == 1:
+        # If there are no ready tasks or it has just been reconfigured, it doesn't make sense to reconfigure the GPU
+        if ready_tasks[0][-1] == 0:
             reconfig_mask = [0] * 16
         else:
-            # Reconfiguring to the current partition is prohibited
+            reconfig_mask = [1] * 16
+            # Forbidden to reconfigure to the current partition
             reconfig_mask[current_partition - 1] = 0
+            # Forbidden to reconfigure to partitions where slices in use need to be changed
+            for future_partition in range(1, 17):
+                for curr_slice in range(7):
+                    if partition_map[current_partition]["slices"][curr_slice] != partition_map[future_partition]["slices"][curr_slice] and slices_t[curr_slice] > 0:
+                        reconfig_mask[future_partition - 1] = 0
 
         # Valid actions on ready tasks
         select_ready_task = [1] * 7 * self.N
@@ -106,7 +110,6 @@ class SchedEnv(gym.Env):
             "ready_tasks": init_ready_tasks,
             "slices_t": init_slice_t,
         }
-        self.obs["last_reconfig"] = 0
         self.obs["action_mask"] = self._get_action_mask()
 
         self._check_obs_consistency()
@@ -152,7 +155,6 @@ class SchedEnv(gym.Env):
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
         
-        self.obs["last_reconfig"] = 0
         # Wait
         if action == 0:
             # Transition to the first slice that is freed
@@ -165,9 +167,7 @@ class SchedEnv(gym.Env):
             
         # Reconfigure
         elif action <= 16:
-            self.obs["last_reconfig"] = 1
-            next_partition = int(action)
-            
+            next_partition = int(action)            
             # Increase time associated with the reconfiguration of the slices
             for i, instance_size in enumerate(partition_map[self.obs["partition"]]["slices"]):
                 old_instance_size = int(instance_size)
@@ -179,10 +179,7 @@ class SchedEnv(gym.Env):
                     # Increase time for the instance to create
                     self.obs["slices_t"][i] += self.reconfig_map_scaled[new_instance_size]["create"]
             
-            # Time to reconfig
-            elapse_time = max([slices_t[slice_pos] for slice_pos in range(7) if partition_map[next_partition]["slices"][slice_pos] != partition_map[current_partition]["slices"][slice_pos]], default=0)
-            # Advance time for all slices
-            self.obs["slices_t"] = [max(slice_time-elapse_time, 0) for slice_time in slices_t]
+            
             # Basis change (equivalent reconfigs)
             if next_partition == 11 or next_partition == 12 or next_partition == 13: 
                 slice_0, slice_1 = self.obs["slices_t"][0], self.obs["slices_t"][1]
@@ -193,7 +190,7 @@ class SchedEnv(gym.Env):
             # Set the new partition
             self.obs["partition"] = next_partition
             
-            reward = -elapse_time # Reward for reconfig action
+            reward = 0
             self.actions.append(("reconfig", next_partition))
         # Assign task
         else:

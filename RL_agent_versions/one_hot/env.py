@@ -1,24 +1,20 @@
-from collections import OrderedDict
 import gymnasium as gym
 import numpy as np
-from gymnasium.spaces import Dict, Discrete, MultiDiscrete, MultiBinary
+from gymnasium.spaces import Discrete, MultiDiscrete
 from utils import *
-from render import Window
-import os
-from task_times import generate_tasks
-
+import random
 
 class SchedEnv(gym.Env):
     def __init__(self, env_config, type_tasks = "good_scaling"):
         self.N = env_config["N"]
         self.M = env_config["M"]
         self.type_tasks = type_tasks
-        #self.reconfig_time = 1 # Tiempo de reconfiguración 1 unidad, pensar cómo modelar adecuadamente
-        partition_space = [19]
+        # On-Hot encoding of the observation space
+        partition_space = [16]
         ready_task_space = ([(self.M + 1)] * 5 + [(self.N + 1)]) * self.N
         slices_t_space = [(self.M + 1)] * 7
         self.observation_space = MultiDiscrete(partition_space + ready_task_space + slices_t_space)
-        self.action_space = Discrete(1 + 19 + 7 * self.N) # 1 accion esperar, 19 acciones de configuración, y 7*N acciones de asignar tarea
+        self.action_space = Discrete(1 + 16 + 7 * self.N)
 
 
     def _get_action_mask(self):
@@ -26,41 +22,41 @@ class SchedEnv(gym.Env):
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
 
-        # La acción de esperar sólo es válida si hay tareas en la GPU
+        # The wait action is only valid if there are tasks on the GPU
         wait = 1 if any(slice_t != 0 for slice_t in slices_t) else 0
 
-        # Reconfiguraciones válidas
-        # Si no hay tareas ready, no tiene sentido reconfigurar la GPU
+        # Valid reconfigurations
+        # If there are no ready tasks or it has just been reconfigured, it doesn't make sense to reconfigure the GPU
         if ready_tasks[0][-1] == 0:
-            reconfig_mask = [0] * 19
+            reconfig_mask = [0] * 16
         else:
-            reconfig_mask = [1] * 19
-            # Prohibido reconfigurar a la partición actual
+            reconfig_mask = [1] * 16
+            # Forbidden to reconfigure to the current partition
             reconfig_mask[current_partition - 1] = 0
-            # Prohibido reconfigurar a particiones en que haya que cambiar slices en uso
-            for future_partition in range(1, 20):
+            # Forbidden to reconfigure to partitions where slices in use need to be changed
+            for future_partition in range(1, 17):
                 for curr_slice in range(7):
                     if partition_map[current_partition]["slices"][curr_slice] != partition_map[future_partition]["slices"][curr_slice] and slices_t[curr_slice] > 0:
                         reconfig_mask[future_partition - 1] = 0
 
-        # Acciones válidas sobre tareas ready
+        # Valid actions on ready tasks
         select_ready_task = [1] * 7 * self.N
-        # Prohibido coger una tarea para ejecutar en la GPU más allá de los tipos disponibles
+        # It is prohibited to select a task to execute on the GPU beyond the available types
         for i, task in enumerate(ready_tasks):
             n_availables = task[-1]
-            # Si en ready hay una no disponible todas las de detrás no están disponibles por el orden canónico
+            # If there is an unavailable task in ready, all subsequent ones are unavailable due to canonical order
             if n_availables == 0:
                 for j in range(i*7, 7 * self.N):
                     select_ready_task[j] = 0
                 break
         
-        # Prohibido asignar la tarea ready a una instancia con indice superior a la cantidad de instancias de la partición actual
+        # It is prohibited to assign the ready task to an instance with an index higher than the number of instances in the current partition
         first_forbidden_instance = len(partition_map[current_partition]["sizes"])
         for task in range(self.N):
             for instance in range(first_forbidden_instance, 7):
                 select_ready_task[task * 7 + instance] = 0
 
-        # Prohibido asignar una tarea a una instancia con tarea en ejecución (o reconfiguración)
+        # It is prohibited to assign a task to an instance with a task already running (or reconfiguring)
         first_instance_slice = 0
         for instance_index in range(first_forbidden_instance):
             if slices_t[first_instance_slice] > 0:
@@ -76,35 +72,41 @@ class SchedEnv(gym.Env):
 
 
     def get_numpy_obs_state(self):
-        #print(np.array(self.obs["ready_tasks"]).flatten())
         obs = [self.obs["partition"] - 1]
         for task in self.obs["ready_tasks"]:
             obs += task
         obs += self.obs["slices_t"]
-        return np.array(obs)
+        
+        return (np.array(obs, dtype=np.float32)/max(self.M + 1, self.N, 19))
 
     def valid_action_mask(self):
         return np.array(self._get_action_mask())
+    
+
 
     def reset(self, seed = None, options = None):
-        init_partition = 1 # Por ahora, consideramos que se empieza en la partición 1 (una sola instancia de tamaño 7 siempre)
-        init_slice_t = [0,0,0,0,0,0,0] # Consideramos que todos los slices están libres al principio      
-        self.num_task_slices = [0,0,0,0,1,1,1] # Lleva el número de tipo de tarea que hay ejeuctando en cada slice
+        # Randomly select the initial partition
+        init_partition = random.randint(1, 16)
+        # Randomly select the initial time for each slice
+        part_sizes = partition_map[init_partition]["sizes"]
+        init_slice_t = []
+        for instance_size in part_sizes:
+            init_instance_time = random.randint(0, self.M)
+            init_slice_t += [init_instance_time] * instance_size
+
+        # Keeps the number of task types running on each slice
+        self.num_task_slices = partition_map[init_partition]["instances"].copy() 
         
-        #num_ready = self.N if np.random.rand() < 0.8 else np.random.randint(1, self.N)
-        #pending_tasks = [sorted(np.random.randint(1, self.M + 1, size=5), reverse=True) for _ in range(num_ready)]
-        instance_sizes=[1,2,3,4,7]
-        #scale_percs = [0.2,0.2,0.2,0.2,0.2]
-        #n_scale= {ins_size: int(perc*self.N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-        #ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
+        # Keeps the number of task types running on each slice
         ready_tasks = get_ready_tasks(self.type_tasks, self.N)
-        ready_tasks, self.reconfig_time = time_discretization(ready_tasks, self.M)
-        ready_tasks_canonical = canonical_sort_tasks(self.M, ready_tasks) # Las siguientes N tareas pendientes, se ordenan canónicamente y colocando como 6ª componente la cantidad de veces que se repite
+        ready_tasks, self.reconfig_map_scaled = time_discretization(ready_tasks, self.M)
+        ready_tasks_canonical, self.dic_cont_times = canonical_sort_tasks(self.M, ready_tasks)
         
-        # Para tener un índice con el número de tipo de tarea, que luego me permita ser consistente en la representación gráfica
+
+        # To have an index with the task type number, which then allows consistency in the graphical representation
         self.num_type_task = list(range(len(ready_tasks_canonical)))
-        # Usamos el 0 para rellenar posiciones vacías en la representación de tareas ready
-        init_ready_tasks = ready_tasks_canonical + [[0] * 6] * (self.N - len(ready_tasks_canonical)) # Rellenamos con arrays de 6 ceros hasta N
+        # Use 0 to fill empty positions in the ready task representation
+        init_ready_tasks = ready_tasks_canonical + [[0] * 6] * (self.N - len(ready_tasks_canonical)) # Fill with arrays of 6 zeros up to N
         self.obs = {
             "partition": init_partition,
             "ready_tasks": init_ready_tasks,
@@ -114,20 +116,21 @@ class SchedEnv(gym.Env):
 
         self._check_obs_consistency()
 
-        self.last_action = None # Aún no se ha hecho ninguna acción
+        self.last_action = None # No action has been taken yet
 
         self.acum_reward = 0
+        
+        self.init_state = {"partition": init_partition, "slices_t": init_slice_t}
+        self.actions = []
         
         return self.get_numpy_obs_state(), {}
     
 
     def render(self):
         basic_print_obs(self.obs)
-        #graphic_obs(self)
-
 
     def _is_terminated(self):
-        # Si todas las tareas están terminadas, y todo lo que hay en la GPU ha acabado, el episodio termina
+        # If all tasks are finished, and everything on the GPU is done, the episode ends
         for slice_t in self.obs["slices_t"]:
             if slice_t > 0:
                 return False
@@ -135,7 +138,6 @@ class SchedEnv(gym.Env):
         for ready_task in self.obs["ready_tasks"]:
             if ready_task[-1] > 0:
                 return False
-        
         return True
     
     def _check_obs_consistency(self):
@@ -145,98 +147,99 @@ class SchedEnv(gym.Env):
                 times[instance_num] = self.obs["slices_t"][i]
             else:
                 if times[instance_num] != self.obs["slices_t"][i]:
+                    pprint(self.actions)
                     print(self.obs["partition"], self.obs["slices_t"])
-                assert times[instance_num] == self.obs["slices_t"][i] # Todos los slices de una misma instancia tienen que tener el mismo tiempo
+                assert times[instance_num] == self.obs["slices_t"][i] # All slices of the same instance must have the same time
     
 
     def step(self, action):
         current_partition = self.obs["partition"]
         slices_t = self.obs["slices_t"]
         ready_tasks = self.obs["ready_tasks"]
-        # Esperar
+        
+        # Wait
         if action == 0:
-            # Transitamos al primer slice que se libere
+            # Transition to the first slice that is freed
             min_slice_time = min(slice_time for slice_time in slices_t if slice_time > 0)
             
             self.obs["slices_t"] = [slice_time - min_slice_time if slice_time > 0 else 0 for slice_time in slices_t]
-            # Recompensamos con -tiempo transcurrido, para minimizar el makespan
+            # Reward with -elapsed time, to minimize makespan
             reward = -min_slice_time
-        # Reconfigurar
-        elif action <= 19:
-            self.obs["partition"] = int(action)
-            # Para la reconfiguración introduzco una tarea ficticia en las instancias libres
-            for slice, time in enumerate(slices_t):
-                if time == 0:
-                    self.obs["slices_t"][slice] = self.reconfig_time
-                    self.num_task_slices[slice] = -1 # Para no confundir con tareas reales, represento con -1
-            reward = 0 # ¿Esto puede dar problemas? Realmente, no hasta que no se espere a la tarea ficticia de la reconfiguración no hay que sumar la recompensa negativa
-        # Asignar tarea
+            self.actions.append(("wait", None))
+            
+        # Reconfigure
+        elif action <= 16:
+            next_partition = int(action)            
+            # Increase time associated with the reconfiguration of the slices
+            for i, instance_size in enumerate(partition_map[self.obs["partition"]]["slices"]):
+                old_instance_size = int(instance_size)
+                new_instance_size = int(partition_map[next_partition]["slices"][i])
+                # Instance to destroy
+                if old_instance_size != new_instance_size:
+                    # Increase time for the instance to destroy
+                    self.obs["slices_t"][i] += self.reconfig_map_scaled[old_instance_size]["destroy"]
+                    # Increase time for the instance to create
+                    self.obs["slices_t"][i] += self.reconfig_map_scaled[new_instance_size]["create"]
+            
+            
+            # Basis change (equivalent reconfigs)
+            if next_partition == 11 or next_partition == 12 or next_partition == 13: 
+                slice_0, slice_1 = self.obs["slices_t"][0], self.obs["slices_t"][1]
+                self.obs["slices_t"][0], self.obs["slices_t"][1] = self.obs["slices_t"][2], self.obs["slices_t"][3]
+                self.obs["slices_t"][2], self.obs["slices_t"][3] = slice_0, slice_1
+                next_partition -= 3
+                self.actions.append(("exchange", None))
+            # Set the new partition
+            self.obs["partition"] = next_partition
+            
+            reward = 0
+            self.actions.append(("reconfig", next_partition))
+        # Assign task
         else:
-            task = (action - 20) // 7
-            instance = (action - 20) % 7
-            # Quitamos la tarea de las ready_tasks
-            self.obs["ready_tasks"][task][-1] -= 1
-            # Aumentamos el tiempo que tarda la tarea para el tamaño de la instancia en todos los slices de la instancia
+            task = (action - 17) // 7
+            instance = (action - 17) % 7
+            # Increase the time it takes for the task for the instance size in all slices of the instance
             instance_size = partition_map[current_partition]["sizes"][instance]
+
+            # Mark the task as selected in the list of performed actions
+            cont_time_selected = self.dic_cont_times[type_num_task(self.M, self.obs["ready_tasks"][task][:5])][0][instance_size_map[instance_size]]
+            self.actions.append(("assign", (cont_time_selected, instance)))
+            self.dic_cont_times[type_num_task(self.M, self.obs["ready_tasks"][task][:5])].pop(0)
+
             task_time = ready_tasks[task][instance_size_map[instance_size]]
+            # Remove the task from ready_tasks
+            self.obs["ready_tasks"][task][-1] -= 1
+
             for i, instance_slice in enumerate(partition_map[current_partition]["instances"]):
                 if instance_slice == instance:
                     self.obs["slices_t"][i] = task_time
                     self.num_task_slices[i] = self.num_type_task[task]
 
-            # Si es la última de cierto tipo, quitamos el tipo de ready task
+            # If it is the last of a certain type, remove the type from ready tasks
             if ready_tasks[task][-1] == 0:
                 ready_tasks.pop(task)
-                # Añadimos un tipo de tarea vacío al final para mantener la dimensionalidad
+                # Add an empty task type at the end to maintain dimensionality
                 ready_tasks.append([0] * 6)
-                # Movemos ese número de tipo de tarea al final
+                # Move that task type number to the end
                 self.num_type_task.append(self.num_type_task[task])
                 self.num_type_task.pop(task)
             reward = 0
 
-        
-
         self._check_obs_consistency()
 
-        # Actualizamos la máscara de acciones para el nuevo estado
+        # Update the action mask for the new state
         self.obs["action_mask"] = self._get_action_mask()
 
-        # Comprobamos si el episodio ha terminado
+        # Check if the episode has ended
         terminated = self._is_terminated()
         
         truncated, info = False, {}
 
-        self.last_action = action # La última acción realizada es la que se acaba de hacer
+        self.last_action = action # The last action performed is the one just taken
 
         self.acum_reward += reward
-
 
         return self.get_numpy_obs_state(), reward, terminated, truncated, info
 
     def close(*args, **kwargs):
         pass
-
-    # def deepcopy(self):
-    #     sched = SchedEnv({"N": self.N, "M": self.M})
-    #     sched.obs = copy.deepcopy(self.obs)
-    #     sched.acum_reward = self.acum_reward
-    #     sched.last_action = self.last_action
-    #     sched.num_task_slices = self.num_task_slices
-    #     sched.num_type_task = self.num_type_task
-    #     return sched
-
-
-
-if __name__ == "__main__":
-    env_example = SchedEnv({"N": 15, "M": 7})
-    print(env_example.observation_space.sample())
-    initial_obs, _ = env_example.reset()
-    print("initial obs:", initial_obs)
-    window = Window(env_example)
-
-# terminated = False
-# while not terminated:
-    
-#     input("Press enter to next step...")
-#     action = np.random.choice(np.flatnonzero(env_example.obs["action_mask"]))
-#     _, _, terminated, _, _= env_example.step(action)

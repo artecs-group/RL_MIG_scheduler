@@ -1,4 +1,3 @@
-#from pprint import pprint
 import random
 import numpy as np
 import pandas as pd
@@ -61,8 +60,8 @@ def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_ran
                     next_time = (size - 1 + np.clip(np.random.normal(0.75, 0.25), 0.5, 1)) / size * last_time
                 # Si sigue siendo memory bound y hemos escalado en memoria (de 3 a 4 slices no se escala en A100)
                 elif super_linear_grow and size != 4:
-                    next_time = (size - 1 + np.clip(np.random.normal(-0.25, 0.25), -0.3, 0)) / size * last_time
-                    if random.random() <= 0.1:
+                    next_time = (size - 1 + np.clip(np.random.normal(-0.3, 0.3), -0.5, 0)) / size * last_time
+                    if random.random() <= 0.025:
                         super_linear_grow = False
                 else:
                     next_time = (size - 1 + np.clip(np.random.normal(0.05, 0.05), 0, 0.1)) / size * last_time
@@ -70,6 +69,10 @@ def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_ran
                 times_instance_scale_size[i].append((size, next_time))
         times += times_instance_scale_size
     # Remove times of instance sizes not valid
-    times = [[time for slices, time in task_times if slices in instance_sizes] for index, task_times in enumerate(times)]
-    #pprint(times)
+    times = [[time for slices, time in task_times if slices in instance_sizes] for task_times in times]
+    # # Aux for cheking agent selection
+    # for i in range(len(times)):
+    #     times[i][1] = times[i][0]
+
+
     return times
