@@ -1,9 +1,4 @@
 from collections import Counter
-from pprint import pprint
-import os
-import random
-if not os.getcwd().endswith("direct_reconfig"):
-    os.chdir("./direct_reconfig")
 from task_times import generate_tasks
 
 # Mapa de número de partición a sus instancias
@@ -25,6 +20,12 @@ partition_map = {
     15: {"slices": ["1"] * 4 + ["2"] * 2 + ["1"], "sizes": [1, 1, 1, 1, 2, 1], "instances" : [0,1,2,3,4,4,5]}, 
     16: {"slices": ["1"] * 7, "sizes": [1, 1, 1, 1, 1, 1, 1], "instances" : [0,1,2,3,4,5,6]}, 
 }
+
+reconfig_time_map = {1: {"create": 0.16, "destroy": 0.20},
+                     2: {"create": 0.17, "destroy": 0.20},
+                     3: {"create": 0.20, "destroy": 0.21},
+                     4: {"create": 0.21, "destroy": 0.21},
+                     7: {"create": 0.24, "destroy": 0.22}}
 
 
 # Mapa de tamaño de instancia a posición de array en que se codifica
@@ -84,11 +85,13 @@ def action_to_str(action):
         instance = (action - 17) % 7
         return f"Put task {task} in instance {instance}"
     
-def time_discretization(ready_tasks, M, reconfig_time):
+def time_discretization(ready_tasks, M):
     max_time = max(max(task) for task in ready_tasks)
     time_step = max_time / M
-    reconfig_time_scaled = reconfig_time / time_step
-    return [[(time, round(time / time_step) + 1) for time in task] for task in ready_tasks], reconfig_time_scaled
+    reconfig_map_scaled = {size: {"create": times["create"] / time_step,
+                                  "destroy": times["destroy"] / time_step}
+                           for size, times in reconfig_time_map.items()}
+    return [[(time, round(time / time_step) + 1) for time in task] for task in ready_tasks], reconfig_map_scaled
 
 
 def _n_scale_padding(n_scale, instance_sizes, N):
@@ -101,33 +104,33 @@ def _n_scale_padding(n_scale, instance_sizes, N):
     return n_scale
 
 def get_ready_tasks(type_tasks, N):
-        instance_sizes=[1,2,3,4,7]
-        if type_tasks == "good_scaling":
-            scale_percs = [0,0,0.2,0.4,0.4]
-            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-            n_scale = _n_scale_padding(n_scale, instance_sizes[::-1], N)
-            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=100, times_range=[90,100])
-        elif type_tasks == "bad_scaling":
-            scale_percs = [0.2,0.2,0.2,0.2,0.2]
-            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-            n_scale = _n_scale_padding(n_scale, instance_sizes, N)
-            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
-        elif type_tasks == "mix_scaling_extreme": 
-            ready_tasks_good = get_ready_tasks(type_tasks="good_scaling", N = N // 2)
-            ready_tasks_bad = get_ready_tasks(type_tasks="bad_scaling", N = N // 2 if N % 2 == 0 else N // 2 + 1)
-            ready_tasks = ready_tasks_good + ready_tasks_bad
-        elif type_tasks == "mix_scaling_soft":
-            scale_percs = [0.2,0.2,0.2,0.2,0.2]
-            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-            n_scale = _n_scale_padding(n_scale, instance_sizes, N)
-            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
-        elif type_tasks == "wide_times":
-            scale_percs = [0.2,0.2,0.2,0.2,0.2]
-            n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
-            n_scale = _n_scale_padding(n_scale, instance_sizes, N)
-            ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[1,100])
-            
-        return ready_tasks
+    instance_sizes=[1,2,3,4,7]
+    if type_tasks == "good_scaling":
+        scale_percs = [0,0,0,0.5,0.5]
+        n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes[::-1], N)
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=75, times_range=[90,100])
+    elif type_tasks == "bad_scaling":
+        scale_percs = [0.5,0.5,0,0,0]
+        n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=25, times_range=[90,100])
+    elif type_tasks == "mix_scaling_extreme": 
+        scale_percs = [0.45,0.05,0,0.05,0.45]
+        n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
+    elif type_tasks == "mix_scaling_soft":
+        scale_percs = [0.2,0.2,0.2,0.2,0.2]
+        n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[90,100])
+    elif type_tasks == "wide_times":
+        scale_percs = [0.2,0.2,0.2,0.2,0.2]
+        n_scale= {ins_size: int(perc*N) for ins_size, perc in zip(instance_sizes, scale_percs)}
+        n_scale = _n_scale_padding(n_scale, instance_sizes, N)
+        ready_tasks = generate_tasks(instance_sizes=instance_sizes, n_scale=n_scale, device="A100", perc_membound=50, times_range=[1,100])          
+    return ready_tasks
 
 
 def makespan_lower_bound(dic_cont_times):

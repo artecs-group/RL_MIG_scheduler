@@ -1,14 +1,10 @@
 import os
 import csv
 import argparse
-import gymnasium as gym
-import numpy as np
 from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 from sb3_contrib.common.wrappers import ActionMasker
 from sb3_contrib.ppo_mask import MaskablePPO
-from stable_baselines3.common.callbacks import EveryNTimesteps
 from env import SchedEnv
-from callbacks import CustomCallback
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -52,17 +48,9 @@ if __name__ == "__main__":
     lr_schedule = lambda _: 0.0003
     model.policy = MaskableActorCriticPolicy(observation_space=observation_space, action_space=action_space, lr_schedule=lr_schedule, net_arch=net_arch)
     model.policy = model.policy.to(model.device)
-    # Callback to save the model performance periodically
-    my_callback = CustomCallback(M=args.M, N=args.N, type_tasks=args.type_tasks)
-
-    with open(f'ratios_N{args.N}_M{args.M}_{args.type_tasks}.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["step", "ratio makespan"])
-    my_callback.calculate_ratio(args.N, args.M, model)
 
     # Training with a decay of the entropy coefficient
     ent_coefs = [0.01, 0.00075, 0.0005, 0]
-    periodic_callback = EveryNTimesteps(n_steps=100000, callback=my_callback)
     try:
         # Define the number of steps for each phase
         phase_steps = args.num_steps // len(ent_coefs)
@@ -73,7 +61,7 @@ if __name__ == "__main__":
 
             # Train the model for the current phase
             print(f"Training phase {i + 1} with ent_coef={ent_coef}")
-            model.learn(phase_steps, callback=periodic_callback)
+            model.learn(phase_steps)
     except KeyboardInterrupt:
         print("Training interrupted")
     finally:
