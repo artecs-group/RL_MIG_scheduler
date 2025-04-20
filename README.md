@@ -12,14 +12,11 @@ Each tool has its own README —with requirements, installation instructions, fu
   Plots and allows to interact with the agent’s observations and decisions for a given workload. This is invaluable for debugging, understanding, and illustrating the agent’s behavior in specific scenarios.
 
 - **MIG Scheduling tool :file_folder: [GPU_MIG_scheduler/](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/GPU_MIG_scheduler)**  
-  Enables optimized co‑execution of a set of tasks on a MIG‑capable GPU by following the decision policy of a pre‑trained agent from the Training tool.
+  Enables optimized co‑execution of a set of tasks on a MIG‑capable GPU by following the decision policy of a pre‑trained agent from the Training tool. This tool also includes the FAR scheduler, presented in a [previous paper](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4958466), which can be used as an alternative to the RL agent.
 
 The folder [aux_scripts](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/aux_scripts) contains some auxiliary scripts used for processing and plotting data for the paper.
 
 ## Requirements
-- **Training tool** and **Visualization tool**:
-  - Python 3.8 or newer
-- **MIG Scheduling tool**:
   - Python 3.8 or newer
   - NVIDIA GPU with MIG support (models A30, A100, H100, B100, B200)
   - CUDA Toolkit ≥ 11.0 (including NVML library)
@@ -47,9 +44,8 @@ The folder [aux_scripts](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/mai
 This project is licensed under the **MIT License**. See [`LICENSE`](https://github.com/Jorgitou98/RL_MIG_scheduler/blob/main/LICENSE) for details.
 
 ## Acknowledgements
-This work is funded by Grant PID2021-126576NB-I00 funded by MCIN/AEI/10.13039/501100011033 and by *ERDF A way of making Europe*. 
-We thank the HPC\&A group at Universitat Jaume I de Castellón for granting us access to A100 and H100 GPUs for profiling purposes.
+This work is funded by Grant PID2021-126576NB-I00 funded by MCIN/AEI/10.13039/501100011033 and by *ERDF A way of making Europe*.
 
 ---
-*Last updated: April 19, 2025*
+*Last updated: April 20, 2025*
 
