@@ -57,6 +57,7 @@ env_scheduler/
 */CMakeFiles/
 */CMakeCache.txt
 */cmake_install.cmake
+*/cmake.check_cache
 */Makefile
 
 # Archivos temporales y logs
