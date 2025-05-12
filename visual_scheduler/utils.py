@@ -2,8 +2,6 @@ from collections import Counter
 from pprint import pprint
 import os
 import random
-if not os.getcwd().endswith("direct_reconfig"):
-    os.chdir("./direct_reconfig")
 from task_times import generate_tasks
 
 # Mapa de número de partición a sus instancias

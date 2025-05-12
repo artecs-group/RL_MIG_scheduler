@@ -3,8 +3,8 @@ from matplotlib import patches
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import numpy as np
-from MIG_scheduler.algorithm import *
-from MIG_scheduler.plotting import draw_rects_tree
+from FAR_scheduler.algorithm import *
+from FAR_scheduler.plotting import draw_rects_tree
 from utils import partition_map, action_to_str, compute_makespan
 import copy
 
@@ -17,8 +17,7 @@ class Window:
         self.model_trained = model_trained
         self.lower_bound = lower_bound
         figsize = (30, 5)
-        self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1, 3, figsize=figsize, gridspec_kw={'width_ratios': [4, 6, 1]})  
-        #self.fig.set_size_inches(12, 5)
+        self.fig, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=figsize, gridspec_kw={'width_ratios': [4, 6]})  
         self.fig.subplots_adjust(left=0.05, right=0.95, bottom=0.2)
         # Crear los botones de "Siguiente" y "Anterior"
         axprev = plt.axes([0.3, 0, 0.1, 0.075])
@@ -80,42 +79,6 @@ class Window:
                     min_a = a
                     best_scaling[-1] = size
         return best_scaling
-                    
-
-    
-    def _next_step_mix_scaling(self):
-        env = self.envs[-1]
-        action_mask = env._get_action_mask()
-        wait, reconfig, n_task = action_mask[0], action_mask[1:17], action_mask[17:]
-        current_part = env.obs["partition"]
-        ready_tasks = env.obs["ready_tasks"]
-        best_scaling = self._best_scaling_size(ready_tasks)
-        if best_scaling == []:
-            return 0    
-        if 7 in best_scaling:
-            idx = best_scaling.index(7)
-            if current_part != 1 and reconfig[0] == 1:
-                return 1
-            elif current_part == 1 and n_task[7*idx] == 1:
-                return 17 + 7 * idx
-            else:
-                return 0
-        else:
-            if current_part == 1 and ready_tasks[0][5] == 1 and ready_tasks[1][5] == 0:
-                return 17
-            elif current_part != 16 and reconfig[15] == 1:
-                return 16
-            elif current_part == 16 and 1 in n_task:
-                if ready_tasks[0][5] == 1 and ready_tasks[1][5] == 0:
-                    if reconfig[0] == 0:
-                        return 0
-                    else:
-                        return 1
-                
-                idx = n_task.index(1)
-                return 17 + idx
-            else:
-                return 0
             
             
     def _heuristic_solve(self, env):
@@ -135,9 +98,7 @@ class Window:
             self.bstep.ax.set_visible(False)
             return
         env = copy.deepcopy(self.envs[-1])
-        if env.type_tasks == "mix_scaling":
-            action = self._next_step_mix_scaling()
-        elif self.model_trained:
+        if self.model_trained:
             action, _ = self.model_trained.predict(env.get_numpy_obs_state(), action_masks=env.valid_action_mask())
         else:
             action = np.random.choice(np.flatnonzero(env.obs["action_mask"]))
@@ -156,7 +117,6 @@ class Window:
     def _clear_axes(self):
         self.ax1.clear()
         self.ax2.clear()
-        self.ax3.clear()
 
     def _render_env(self, env):
         self._clear_axes()
@@ -216,25 +176,6 @@ class Window:
         # Add text below the figures
         wait, reconfigure, n_task = action_mask[0], action_mask[1:17], action_mask[17:]
 
-        # Remove axes and labels from ax3
-        self.ax3.axis('off')
 
-        self.ax3.set_title("Posible actions")
-        # Add text to ax3
-        self.ax3.text(0.5, 0.95, "Wait" if wait else "", ha='center', va='center', fontsize=12)
-
-        self.ax3.text(0, 0.9, "Reconfigs:", ha='left', va='center', fontsize=12)
-        height = 0.85
-        for part, reconfig in enumerate(reconfigure):
-            if reconfig == 1:
-                
-                self.ax3.text(0.5, height, str(partition_map[part+1]["sizes"]), ha='center', va='center', fontsize=12)
-                height -= 0.05
-
-        # # Draw rectangles on ax3
-        # rect1 = patches.Rectangle((0.1, 0.1), 0.3, 0.3, linewidth=1, edgecolor='black', facecolor='red')
-        # rect2 = patches.Rectangle((0.6, 0.1), 0.3, 0.3, linewidth=1, edgecolor='black', facecolor='blue')
-        # ax3.add_patch(rect1)
-        # ax3.add_patch(rect2)
         plt.draw()
         

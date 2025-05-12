@@ -1,18 +1,14 @@
 from sb3_contrib.ppo_mask import MaskablePPO
 import argparse
-import os
 import numpy as np
-os.chdir("./direct_reconfig")
 from env import SchedEnv
 import re
 from render import Window
-from pprint import pprint
 from utils import action_to_str, makespan_lower_bound
-from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--filename", type=str, help="Filename with the model to evaluate."
+    "--filename", type=str, required=True, help="Filename with the model to evaluate."
 )
 
 def evaluate(model, env, num_steps=1000):
@@ -60,10 +56,10 @@ if __name__ == "__main__":
     print(type_tasks)
 
     env = SchedEnv({"N": N, "M": M}, type_tasks=type_tasks)
-    # mean_reward = evaluate(model, env, num_steps=10000)
+    
     initial_obs, _ = env.reset()
     mk_lb = makespan_lower_bound(env.dic_cont_times)
 
-    model = MaskablePPO.load(f"./trained_models/{args.filename}")
+    model = MaskablePPO.load(args.filename)
 
     window = Window(env, model_trained=model, lower_bound=mk_lb)

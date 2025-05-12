@@ -1,6 +1,6 @@
 from stable_baselines3.common.callbacks import BaseCallback
 from env import SchedEnv
-from utils import partition_map, makespan_lower_bound, compute_makespan
+from utils import makespan_lower_bound, compute_makespan
 import csv
 
 class CustomCallback(BaseCallback):

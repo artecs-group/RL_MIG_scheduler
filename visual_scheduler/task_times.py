@@ -71,9 +71,5 @@ def generate_tasks(instance_sizes, n_scale, device, perc_membound = 0, times_ran
         times += times_instance_scale_size
     # Remove times of instance sizes not valid
     times = [[time for slices, time in task_times if slices in instance_sizes] for task_times in times]
-    # # Aux for cheking agent selection
-    # for i in range(len(times)):
-    #     times[i][1] = times[i][0]
-
 
     return times

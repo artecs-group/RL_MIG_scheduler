@@ -4,9 +4,7 @@ import numpy as np
 from gymnasium.spaces import Box, Discrete, MultiDiscrete, MultiBinary
 from utils import *
 from render import Window
-import os
 from task_times import generate_tasks
-import random
 
 
 class SchedEnv(gym.Env):
