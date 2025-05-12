@@ -47,3 +47,44 @@ env_scheduler/
 *.exe
 *.out
 *.app
+
+# Directorio de compilación (por defecto “build”)
+build/
+bin/
+lib/
+
+# Archivos de CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Archivos temporales y logs
+CTestTestfile.cmake
+Testing/
+*.log
+
+# Ejecutables y bibliotecas
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+
+# Archivos de IDE (ejemplos comunes)
+.vscode/
+.idea/
+*.code-workspace
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Modo “out-of-source” adicional (por si usas otra carpeta)
+out/
+build-*/
+
+# Paquetes y artefactos
+*.tar.gz
+*.zip
