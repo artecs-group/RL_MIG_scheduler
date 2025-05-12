@@ -49,15 +49,15 @@ env_scheduler/
 *.app
 
 # Directorio de compilación (por defecto “build”)
-build/
-bin/
-lib/
+*/build/
+*/bin/
+*/lib/
 
 # Archivos de CMake
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
+*/CMakeFiles/
+*/CMakeCache.txt
+*/cmake_install.cmake
+*/Makefile
 
 # Archivos temporales y logs
 CTestTestfile.cmake
