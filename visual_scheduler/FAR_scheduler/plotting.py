@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from MIG_scheduler.algorithm import give_makespan, give_makespan_tree
+from FAR_scheduler.algorithm import give_makespan, give_makespan_tree
 
 
 def plot_speedup_inputs(device, times):
@@ -111,10 +111,6 @@ def draw_concat_trees(n_slices, trees):
     plt.xlabel("Slices", fontsize=20)
     plt.ylabel("Time", labelpad=5, fontsize=20)
     plt.show()
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from MIG_scheduler.algorithm import give_makespan, give_makespan_tree
-
 
 def plot_speedup_inputs(device, times):
     #plt.rcParams["figure.figsize"] = (6.5, 2.5)
