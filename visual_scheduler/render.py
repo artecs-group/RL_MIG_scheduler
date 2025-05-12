@@ -125,7 +125,7 @@ class Window:
         ready_tasks = env.obs["ready_tasks"]
         action_mask = env.obs["action_mask"]
         title = (f"Initial state." if env.last_action is None else f"Last action: {action_to_str(env.last_action)}.") + f" Reward: {env.acum_reward:.2f}."
-        title += f" Real time lower bound: {self.lower_bound:.2f}" if self.lower_bound else ""
+        # title += f" Real time lower bound: {self.lower_bound:.2f}" if self.lower_bound else ""
         if self.terminated:
             if self.lower_bound:
                 makespan = compute_makespan(env.init_state, env.actions)
@@ -148,7 +148,7 @@ class Window:
         self.ax1.set_xlabel("Slices")
         self.ax1.set_ylabel("Time")
         self.ax1.set_yticks(range(0, env.M+1))
-        self.ax1.set_title(f"GPU Partition {partition_map[partition]['sizes']}")
+        self.ax1.set_title(f"GPU Config. {partition_map[partition]['sizes']}")
 
         slices_l= [1,2,3,4,7]
         # Create a bar chart for each task in state["ready_tasks"]
