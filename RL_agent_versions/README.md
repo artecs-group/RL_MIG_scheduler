@@ -3,11 +3,11 @@ Modeling of different versions of a Deep Reinforcement Learning agent that optim
 ## RL agent versions
 Each directory contains a different version of the agent (see the [paper]() for more details):
 
-- 📁 [one_hot](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/RL_agent_versions/one_hot): The discretized duration of the tasks is represented by One-Hot encoding in the agent's neural network input.
-- 📁 [float](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/RL_agent_versions/float): Task duration times are discrete but represented as real numbers in the agent input rather than as a One-Hot vector.
-- 📁 [entropy](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/RL_agent_versions/float): Model with *float* representation but higher entropy coefficient to favor exploration over exploitation, especially in the early stages of training. Entropy decays gradually in steps during training.
-- 📁 [direct_reconfig](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/RL_agent_versions/direct_reconfig): Evolution of the *entropy* version, allowing reconfiguration in any state to facilitate the exploration of such actions.
-- 📁 [online](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/RL_agent_versions/online): The other versions follow an *offline* scheme where tasks are handled in separate batches without replenishment of new tasks. This version follows an *online* approach, where tasks are replenished in the batch when their size allows it. See Section 3 of the paper for more details.
+- 📁 [one_hot](https://github.com/artecs-group/RL_MIG_scheduler/tree/main/RL_agent_versions/one_hot): The discretized duration of the tasks is represented by One-Hot encoding in the agent's neural network input.
+- 📁 [float](https://github.com/artecs-group/RL_MIG_scheduler/tree/main/RL_agent_versions/float): Task duration times are discrete but represented as real numbers in the agent input rather than as a One-Hot vector.
+- 📁 [entropy](https://github.com/artecs-group/RL_MIG_scheduler/tree/main/RL_agent_versions/float): Model with *float* representation but higher entropy coefficient to favor exploration over exploitation, especially in the early stages of training. Entropy decays gradually in steps during training.
+- 📁 [direct_reconfig](https://github.com/artecs-group/RL_MIG_scheduler/tree/main/RL_agent_versions/direct_reconfig): Evolution of the *entropy* version, allowing reconfiguration in any state to facilitate the exploration of such actions.
+- 📁 [online](https://github.com/artecs-group/RL_MIG_scheduler/tree/main/RL_agent_versions/online): The other versions follow an *offline* scheme where tasks are handled in separate batches without replenishment of new tasks. This version follows an *online* approach, where tasks are replenished in the batch when their size allows it. See Section 3 of the paper for more details.
 
 ## Configuration setup
 The models have been developed with Python 3.11.0, but Python >= 3.8 should be sufficient. We recommend installing the necessary dependencies, specified in the `requirements.txt` file, in a Python virtual environment common to all models as follows:
