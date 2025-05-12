@@ -1,5 +1,5 @@
 # MIG Scheduling tool
-This tool allows executing a set of tasks on a MIG capable GPU by partitioning and scheduling the tasks according to the decisions of an RL agent pre-trained for this purpose with the [Training tool](https://github.com/Jorgitou98/RL_MIG_scheduler/tree/main/RL_agent_versions). It also allows to perform such execution with the logic of the FAR heuristic algorithm, presented in this [other article](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4958466).
+This tool allows executing a set of tasks on a MIG capable GPU by partitioning and scheduling the tasks according to the decisions of an RL agent pre-trained for this purpose with the [Training tool](https://github.com/artecs-group/RL_MIG_scheduler/tree/main/RL_agent_versions). It also allows to perform such execution with the logic of the FAR heuristic algorithm, presented in this [other article](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4958466).
 
 ## Supported GPUs
 Currently, the software explicitly supports the following NVIDIA GPU models:  
