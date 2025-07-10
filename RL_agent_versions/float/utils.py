@@ -1,4 +1,4 @@
-from collections import Counter
+from itertools import chain, combinations
 from task_times import generate_tasks
 
 # Mapa de número de partición a sus instancias
@@ -133,15 +133,40 @@ def get_ready_tasks(type_tasks, N):
     return ready_tasks
 
 
+def _no_coexection_slices(slices, subset):
+    min_no_coexecution = float('inf')
+    for num, partition in partition_map.items():
+        if slices not in partition["sizes"]:
+            continue
+        no_coexecution = 0
+        for size in partition["sizes"]:
+            if size not in subset:
+                no_coexecution += size
+        if no_coexecution < min_no_coexecution:
+            min_no_coexecution = no_coexecution
+    return min_no_coexecution
+
 def makespan_lower_bound(dic_cont_times):
+    sizes = [1, 2, 3, 4, 7]
     pos_to_slices = {0: 1, 1: 2, 2: 3, 3: 4, 4: 7}
-    sum_min_area = 0
-    for num_task, times in dic_cont_times.items():
-        for times_t in times:
-            areas = [pos_to_slices[pos] * time for pos, time in enumerate(times_t)]
-            min_area = min(areas)
-            sum_min_area += min_area
-    return sum_min_area / 7
+    l_bound = float('inf')
+    # Generate all non-empty subsets of sizes
+    subsets = list(chain.from_iterable(combinations(sizes, r) for r in range(1, len(sizes) + 1)))
+    for subset in subsets:
+        l_bound_tasks_s = 0
+        for num_task, times in dic_cont_times.items():
+            for times_t in times:
+                # Solo guardar áreas si el slice está en el subconjunto actual
+                areas = [pos_to_slices[pos] * time + _no_coexection_slices(pos_to_slices[pos], subset) * time for pos, time in enumerate(times_t) if pos_to_slices[pos] in subset]
+                min_area = min(areas)
+                l_bound_tasks_s += min_area / 7
+        for size in subset:
+            l_bound_tasks_s += size * (reconfig_time_map[size]["create"] + reconfig_time_map[size]["destroy"]) / 7
+            
+        if l_bound_tasks_s < l_bound:
+            l_bound = l_bound_tasks_s
+
+    return l_bound
 
 def compute_makespan(init_state, actions):
     partition = init_state["partition"]
