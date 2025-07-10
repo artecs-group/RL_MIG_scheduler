@@ -46,6 +46,3 @@ This project is licensed under the **MIT License**. See [`LICENSE`](https://gith
 ## Acknowledgements
 This work is funded by Grant PID2021-126576NB-I00 funded by MCIN/AEI/10.13039/501100011033 and by *ERDF A way of making Europe*.
 
----
-*Last updated: May 12, 2025*
-
